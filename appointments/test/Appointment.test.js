@@ -79,7 +79,20 @@ describe("AppointmentsDayView", () => {
 
     it("selects the first appointment by default", () => {
         render(<AppointmentsDayView appointments={appointments} />);
-        console.log(document.body.innerHTML);
         expect(document.body.textContent).toContain("Ashley");
+    });
+
+    it("has a button element in each li", () => {
+        render(<AppointmentsDayView appointments={appointments} />);
+        const buttons = document.querySelectorAll("li > button");
+        expect(buttons).toHaveLength(2);
+        expect(buttons[0].type).toEqual("button")
+    });
+
+    it("renders another appointment when selected", () => {
+        render(<AppointmentsDayView appointments={appointments} />);
+        const button = document.querySelectorAll("button")[1];
+        act(() => button.click());
+        expect((document.body.textContent)).toContain("Jordan")
     });
 })
