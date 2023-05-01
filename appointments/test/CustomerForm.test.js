@@ -30,11 +30,20 @@ describe('CustomerForm', () => {
             expect(field(fieldName).value).toEqual(existing);
     });
 
-    const itRendersLabel = (fieldName) => it('renders a laber', () => {
-        render(<CustomerForm original={blankCustomer} />);
-        const label = element(`label[for=${fieldName}]`);
-        expect(label).not.toBeNull();
-    });
+    const itRendersLabel = (fieldName, labelText) => {
+        it('renders a label for the text box', () => {
+            render(<CustomerForm original={blankCustomer} />);
+            const label = element(`label[for=${fieldName}]`);
+            expect(label).not.toBeNull();
+        }); 
+
+        it('renders a "First Name" as the first name label content', () => {
+            render(<CustomerForm original={blankCustomer} />);
+            const label = element(`label[for=${fieldName}]`);
+            expect(label).toContainText(labelText);
+        });
+    
+    };
 
     const itAssignesIdMatchingLabelId = (fieldName) => it('assigns an id that matches the label id', () => {
         render(<CustomerForm original={blankCustomer} />);
@@ -71,16 +80,10 @@ describe('CustomerForm', () => {
     describe('first name field', () => {
         itRendersAsATextBox('firstName');
         itIncludesTheExistingValue('firstName', 'Ashley');
-        itRendersLabel('firstName');
+        itRendersLabel('firstName', 'First name');
         itAssignesIdMatchingLabelId('firstName');
         itSaveExistingValueAtSubmit('firstName', 'Ashley');
         itSavesNewValueWhenSubmitted('firstName', 'Jamie');
-    });
-
-    it('renders a "First name" as the first name label content', () => {
-        render(<CustomerForm original={blankCustomer} />);
-        const label = element('label[for=firstName]');
-        expect(label).toContainText("First name");
     });
 
     it('renders a submit button', () => {
