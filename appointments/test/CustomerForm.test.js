@@ -1,5 +1,5 @@
 import React from "react";
-import { initializeReactContainer, render, element, form, field, click, submit, submitButton, change  } from "./reactTestExtensions";
+import { initializeReactContainer, render, element, form, field, click, submit, submitButton, change, labelFor  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
 
 
@@ -8,7 +8,10 @@ describe('CustomerForm', () => {
         initializeReactContainer();
     });
 
-    const blankCustomer = { firstName: "" };
+    const blankCustomer = { 
+        firstName: "",
+        lastName: "", 
+    };
 
     it('renders a form', () => {
         render(<CustomerForm original={blankCustomer}/>);
@@ -33,14 +36,12 @@ describe('CustomerForm', () => {
     const itRendersLabel = (fieldName, labelText) => {
         it('renders a label for the text box', () => {
             render(<CustomerForm original={blankCustomer} />);
-            const label = element(`label[for=${fieldName}]`);
-            expect(label).not.toBeNull();
+            expect(labelFor(fieldName)).not.toBeNull();
         }); 
 
-        it('renders a "First Name" as the first name label content', () => {
+        it('renders a label text as the label content', () => {
             render(<CustomerForm original={blankCustomer} />);
-            const label = element(`label[for=${fieldName}]`);
-            expect(label).toContainText(labelText);
+            expect(labelFor(fieldName)).toContainText(labelText);
         });
     
     };
@@ -51,7 +52,7 @@ describe('CustomerForm', () => {
 
     });
 
-    const itSaveExistingValueAtSubmit = (fieldName, value) => it('saves existing value when submitted', () => {
+    const itSavesExistingValueAtSubmit = (fieldName, value) => it('saves existing value when submitted', () => {
         // tells Jest that it should expect at least one assertion to occur.
         expect.hasAssertions();
         const customer = { [fieldName]: value };
@@ -82,8 +83,17 @@ describe('CustomerForm', () => {
         itIncludesTheExistingValue('firstName', 'Ashley');
         itRendersLabel('firstName', 'First name');
         itAssignesIdMatchingLabelId('firstName');
-        itSaveExistingValueAtSubmit('firstName', 'Ashley');
+        itSavesExistingValueAtSubmit('firstName', 'Ashley');
         itSavesNewValueWhenSubmitted('firstName', 'Jamie');
+    });
+
+    describe('last name field', () => {
+        itRendersAsATextBox('lastName');
+        itIncludesTheExistingValue('lastName', 'Smith');
+        itRendersLabel('lastName', 'Last name');
+        itAssignesIdMatchingLabelId('lastName');
+        itSavesExistingValueAtSubmit('lastName', 'Smith');
+        itSavesNewValueWhenSubmitted('lastName', 'Test2');
     });
 
     it('renders a submit button', () => {
