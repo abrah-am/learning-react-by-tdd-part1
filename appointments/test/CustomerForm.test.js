@@ -1,5 +1,5 @@
 import React from "react";
-import { initializeReactContainer, render, element, form, field, click, submit  } from "./reactTestExtensions";
+import { initializeReactContainer, render, element, form, field, click, submit, submitButton, change  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
 
 
@@ -15,23 +15,66 @@ describe('CustomerForm', () => {
         expect(form()).not.toBeNull();
     });
 
-    it('renders the first name field as text box', () => {
-        render(<CustomerForm original={blankCustomer}/>);
-        expect(field("firstName")).not.toBeNull();
-        expect(field("firstName").tagName).toEqual("INPUT");
-        expect(field("firstName").type).toEqual('text');
+    const itRendersAsATextBox = (fieldName) => 
+        it('renders as text box', () => {
+            render(<CustomerForm original={blankCustomer}/>);
+            expect(field(fieldName)).not.toBeNull();
+            expect(field(fieldName).tagName).toEqual("INPUT");
+            expect(field(fieldName).type).toEqual('text');
+    });    
+        
+    const itIncludesTheExistingValue = (fieldName, existing) => 
+        it('includes the existing value', () => {
+            const customer = { [fieldName]: existing };
+            render(<CustomerForm original={customer} />);
+            expect(field(fieldName).value).toEqual(existing);
     });
 
-    it('includes the existing value for the first name', () => {
-        const customer = { firstName: "Ashley" };
-        render(<CustomerForm original={customer} />);
-        expect(field("firstName").value).toEqual("Ashley");
-    });
-
-    it('renders a laber for the first name field', () => {
+    const itRendersLabel = (fieldName) => it('renders a laber', () => {
         render(<CustomerForm original={blankCustomer} />);
-        const label = element('label[for=firstName]');
+        const label = element(`label[for=${fieldName}]`);
         expect(label).not.toBeNull();
+    });
+
+    const itAssignesIdMatchingLabelId = (fieldName) => it('assigns an id that matches the label id', () => {
+        render(<CustomerForm original={blankCustomer} />);
+        expect(field(fieldName).id).toEqual(fieldName);
+
+    });
+
+    const itSaveExistingValueAtSubmit = (fieldName, value) => it('saves existing value when submitted', () => {
+        // tells Jest that it should expect at least one assertion to occur.
+        expect.hasAssertions();
+        const customer = { [fieldName]: value };
+        console.log(customer);
+        render(
+            <CustomerForm 
+                original={customer} 
+                onSubmit={ (props) => expect(props[fieldName]).toEqual(value)} />
+        );
+        click(submitButton());
+    });
+
+    const itSavesNewValueWhenSubmitted = (fieldName, value) => it('saves new value when submitted', () => {
+        expect.hasAssertions();
+        render(
+            <CustomerForm
+                original={blankCustomer}
+                onSubmit={( props ) => expect(props[fieldName]).toEqual(value)}
+            />
+        );
+        change(field(fieldName), value);
+        click(submitButton());
+    });
+
+
+    describe('first name field', () => {
+        itRendersAsATextBox('firstName');
+        itIncludesTheExistingValue('firstName', 'Ashley');
+        itRendersLabel('firstName');
+        itAssignesIdMatchingLabelId('firstName');
+        itSaveExistingValueAtSubmit('firstName', 'Ashley');
+        itSavesNewValueWhenSubmitted('firstName', 'Jamie');
     });
 
     it('renders a "First name" as the first name label content', () => {
@@ -40,29 +83,9 @@ describe('CustomerForm', () => {
         expect(label).toContainText("First name");
     });
 
-    it('assigns an id that matches the label id to the first name field', () => {
-        render(<CustomerForm original={blankCustomer} />);
-        expect(field('firstName').id).toEqual("firstName");
-
-    });
-
     it('renders a submit button', () => {
         render(<CustomerForm original={blankCustomer} />);
-        const button = element('input[type=submit]');
-        expect(button).not.toBeNull();
-    });
-
-    it('saves existing first name when submitted', () => {
-        // tells Jest that it should expect at least one assertion to occur.
-        expect.hasAssertions();
-        const customer = { firstName: "Ashley" };
-        render(
-            <CustomerForm 
-                original={customer} 
-                onSubmit={ ({firstName}) => expect(firstName).toEqual("Ashley")} />
-        );
-        const button = element('input[type=submit]');
-        click(button);
+        expect(submitButton()).not.toBeNull();
     });
 
     it('prevents the default action when sumitting the form', () => {
