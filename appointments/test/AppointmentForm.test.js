@@ -21,6 +21,7 @@ describe('AppointmentForm', () => {
 
     it('renders a form', () => {
         render(<AppointmentForm original={blankAppointment} />);
+
         expect(form()).not.toBeNull();
     });
 
@@ -59,6 +60,7 @@ describe('AppointmentForm', () => {
                 />
             );
             const option = findOption(field('service'), 'Blow-dry');
+
             expect(option.selected).toBe(true);
         });
     });
@@ -80,9 +82,28 @@ describe('AppointmentForm', () => {
             );
             console.log(document.body.innerHTML);
             const timesOfDayHeadings = elements('tbody >* th');
+
             expect(timesOfDayHeadings[0]).toContainText('09:00');
             expect(timesOfDayHeadings[1]).toContainText('09:30');
             expect(timesOfDayHeadings[3]).toContainText('10:30');
+        });
+
+        it('renders an empty cell at the start of the header row', () => {
+            render(<AppointmentForm original={blankAppointment} />);
+            const headerRow = element('thead > tr');
+
+            expect(headerRow.firstChild).toContainText("");
+        });
+
+        it('renders a week of available dates', () => {
+            const specificDate = new Date(2018, 11, 1);
+            render(<AppointmentForm original={blankAppointment} today={specificDate} />);
+            const dates = elements('thead >* th:not(:first-child)');
+
+            expect(dates).toHaveLength(7);
+            expect(dates[0]).toContainText('Sat 01');
+            expect(dates[1]).toContainText('Sun 02');
+            expect(dates[6]).toContainText('Fri 07');
         });
     });
 
