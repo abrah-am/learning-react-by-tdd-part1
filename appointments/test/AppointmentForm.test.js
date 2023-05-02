@@ -1,5 +1,5 @@
 import React from "react";
-import { field, form, initializeReactContainer, render } from "./reactTestExtensions";
+import { element, field, form, initializeReactContainer, render } from "./reactTestExtensions";
 import { AppointmentForm } from "../src/AppointmentForm";
 
 describe('AppointmentForm', () => {
@@ -61,5 +61,14 @@ describe('AppointmentForm', () => {
             const option = findOption(field('service'), 'Blow-dry');
             expect(option.selected).toBe(true);
         });
+    });
+
+    describe('time slot table', () => {
+
+        it('renders a table for time slots with an id', () => {
+            render(<AppointmentForm original={blankAppointment} />);
+            expect(element('table#time-slots')).not.toBeNull();
+        });
+
     });
 });

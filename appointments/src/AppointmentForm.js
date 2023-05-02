@@ -1,5 +1,7 @@
 import React from "react";
 
+const TimeSlotTable = () => <table id="time-slots" />
+
 export const AppointmentForm = ({
     original,
     selectableServices
@@ -13,6 +15,7 @@ export const AppointmentForm = ({
                 )
             }
         </select>
+        <TimeSlotTable />
     </form>
 );
 
