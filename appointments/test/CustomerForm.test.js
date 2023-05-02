@@ -11,6 +11,7 @@ describe('CustomerForm', () => {
     const blankCustomer = { 
         firstName: "",
         lastName: "", 
+        phoneNumber: "",
     };
 
     it('renders a form', () => {
@@ -56,7 +57,6 @@ describe('CustomerForm', () => {
         // tells Jest that it should expect at least one assertion to occur.
         expect.hasAssertions();
         const customer = { [fieldName]: value };
-        console.log(customer);
         render(
             <CustomerForm 
                 original={customer} 
@@ -94,6 +94,15 @@ describe('CustomerForm', () => {
         itAssignesIdMatchingLabelId('lastName');
         itSavesExistingValueAtSubmit('lastName', 'Smith');
         itSavesNewValueWhenSubmitted('lastName', 'Test2');
+    });
+
+    describe('last name field', () => {
+        itRendersAsATextBox('phoneNumber');
+        itIncludesTheExistingValue('phoneNumber', '1234567890');
+        itRendersLabel('phoneNumber', 'Phone number');
+        itAssignesIdMatchingLabelId('phoneNumber');
+        itSavesExistingValueAtSubmit('phoneNumber', '1234567890');
+        itSavesNewValueWhenSubmitted('phoneNumber', '0987654321');
     });
 
     it('renders a submit button', () => {
