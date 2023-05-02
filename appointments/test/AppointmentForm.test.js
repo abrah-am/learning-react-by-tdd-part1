@@ -1,5 +1,5 @@
 import React from "react";
-import { element, field, form, initializeReactContainer, render } from "./reactTestExtensions";
+import { element, elements, field, form, initializeReactContainer, render } from "./reactTestExtensions";
 import { AppointmentForm } from "../src/AppointmentForm";
 
 describe('AppointmentForm', () => {
@@ -70,5 +70,20 @@ describe('AppointmentForm', () => {
             expect(element('table#time-slots')).not.toBeNull();
         });
 
+        it('renders a time slot for every half an hour between open and close times', () => {
+            render(
+                <AppointmentForm 
+                    original={blankAppointment}
+                    salonOpensAt={9}
+                    salonClosesAt={11}
+                />
+            );
+            console.log(document.body.innerHTML);
+            const timesOfDayHeadings = elements('tbody >* th');
+            expect(timesOfDayHeadings[0]).toContainText('09:00');
+            expect(timesOfDayHeadings[1]).toContainText('09:30');
+            expect(timesOfDayHeadings[3]).toContainText('10:30');
+        });
     });
+
 });
