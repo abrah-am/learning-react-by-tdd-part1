@@ -19,6 +19,15 @@ const weeklyDateValues = (startDate) => {
     return timeIncrements(7, midnight, increment);
 };
 
+const mergeDateAndTime = (date, timeSlot) => {
+    const time = new Date(timeSlot);
+    return new Date(date).setHours(
+        time.getHours(),
+        time.getMinutes(),
+        time.getSeconds(),
+        time.getMilliseconds());
+};
+
 const toShortDate = (timestamp) => {
     const [day, , dayOfMonth] = new Date(timestamp).toDateString().split(" ");
     return `${day} ${dayOfMonth}`;
@@ -27,7 +36,8 @@ const toShortDate = (timestamp) => {
 const TimeSlotTable = ({ 
     salonOpensAt, 
     salonClosesAt,
-    today
+    today,
+    availableTimeSlots
 }) => {
     const timeSlots = dailyTimeSlots(salonOpensAt, salonClosesAt);
     const dates = weeklyDateValues(today);
@@ -37,15 +47,24 @@ const TimeSlotTable = ({
             <thead>
                 <tr>
                     <th />
-                    {dates.map(d => (
+                    {dates.map((d) => (
                         <th key={d}>{toShortDate(d)}</th>
                     ))}
                 </tr>
             </thead>
             <tbody>
-                {timeSlots.map(timeslotMillis => (
-                    <tr key={timeslotMillis}>
-                        <th>{toTimeValue(timeslotMillis)}</th>
+                {timeSlots.map((timeSlot) => (
+                    <tr key={timeSlot}>
+                        <th>{toTimeValue(timeSlot)}</th>
+                        {dates.map(date => (
+                            <td key={date}>
+                                {
+                                    availableTimeSlots.some((ats) => (ats.startsAt === mergeDateAndTime(date, timeSlot)))
+                                    ? <input type="radio"/>
+                                    : null
+                                }                                
+                            </td>
+                        ))}
                     </tr>
                 ))}
             </tbody>
@@ -59,6 +78,7 @@ export const AppointmentForm = ({
     salonOpensAt,
     salonClosesAt,
     today,
+    availableTimeSlots,
 }) => (
     <form>
         <select name="service" value={original.service} readOnly>
@@ -73,6 +93,7 @@ export const AppointmentForm = ({
             salonOpensAt={salonOpensAt} 
             salonClosesAt={salonClosesAt} 
             today={today}
+            availableTimeSlots={availableTimeSlots}
         />
     </form>
 );
@@ -89,4 +110,5 @@ AppointmentForm.defaultProps = {
         'Extensions'
     ],
     today: new Date(),
+    availableTimeSlots: []
 };

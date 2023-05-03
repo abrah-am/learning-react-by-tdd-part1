@@ -67,6 +67,8 @@ describe('AppointmentForm', () => {
 
     describe('time slot table', () => {
 
+        const cellsWithRadioButtons = () => elements('input[type=radio]').map((el) => elements('td').indexOf(el.parentNode));
+
         it('renders a table for time slots with an id', () => {
             render(<AppointmentForm original={blankAppointment} />);
             expect(element('table#time-slots')).not.toBeNull();
@@ -80,7 +82,6 @@ describe('AppointmentForm', () => {
                     salonClosesAt={11}
                 />
             );
-            console.log(document.body.innerHTML);
             const timesOfDayHeadings = elements('tbody >* th');
 
             expect(timesOfDayHeadings[0]).toContainText('09:00');
@@ -104,6 +105,25 @@ describe('AppointmentForm', () => {
             expect(dates[0]).toContainText('Sat 01');
             expect(dates[1]).toContainText('Sun 02');
             expect(dates[6]).toContainText('Fri 07');
+        });
+
+        it('renders radio buttons in the correct table cell positions', () => {
+            const dayInMillis = 24 * 60 * 60 * 1000;
+            const today = new Date();
+            const tomorrow = new Date(today.getTime() + dayInMillis);
+            const availableTimeSlots = [
+                {startsAt: today.setHours(9, 0, 0, 0)},
+                {startsAt: today.setHours(9, 30, 0, 0)},
+                {startsAt: tomorrow.setHours(9, 30, 0, 0)},
+            ];
+            render(
+                <AppointmentForm
+                    original={blankAppointment}
+                    availableTimeSlots={availableTimeSlots}
+                    today={today}
+                />
+            );
+            expect(cellsWithRadioButtons()).toEqual([0, 7, 8]);
         });
     });
 
