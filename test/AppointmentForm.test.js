@@ -127,4 +127,15 @@ describe('AppointmentForm', () => {
         });
     });
 
+    it('does not render radio buttons for unavailable time slots', () => {
+        render(
+            <AppointmentForm
+                original={blankAppointment}
+                availableTimeSlots={[]}
+            />
+        );
+        
+        expect(elements('input[type=radio]')).toHaveLength(0);
+    });
+
 });
