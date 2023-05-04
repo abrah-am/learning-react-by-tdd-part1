@@ -47,7 +47,8 @@ const RadioButtonIfAvailable = (( {
                 name="startsAt"
                 type="radio" 
                 value={startsAt}
-                checked={isChecked} />
+                checked={isChecked} 
+                readOnly/>
         );
     }
     return null;
@@ -101,25 +102,32 @@ export const AppointmentForm = ({
     salonClosesAt,
     today,
     availableTimeSlots,
-}) => (
-    <form>
-        <select name="service" value={original.service} readOnly>
-            <option />
-            {
-                selectableServices.map(s => 
-                    ( <option key={s}>{s}</option> )
-                )
-            }
-        </select>
-        <TimeSlotTable 
-            salonOpensAt={salonOpensAt} 
-            salonClosesAt={salonClosesAt} 
-            today={today}
-            availableTimeSlots={availableTimeSlots}
-            checkedTimeSlot={original.startsAt}
-        />
-    </form>
-);
+    onSubmit,
+}) => {
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        onSubmit(original);
+    };
+    return(
+        <form onSubmit={handleSubmit}>
+            <select name="service" value={original.service} readOnly>
+                <option />
+                {
+                    selectableServices.map(s => 
+                        ( <option key={s}>{s}</option> )
+                    )
+                }
+            </select>
+            <TimeSlotTable 
+                salonOpensAt={salonOpensAt} 
+                salonClosesAt={salonClosesAt} 
+                today={today}
+                availableTimeSlots={availableTimeSlots}
+                checkedTimeSlot={original.startsAt}
+            />
+            <input type="submit" value="Add" />
+        </form>)
+};
 
 AppointmentForm.defaultProps = {
     salonOpensAt: 9,
@@ -133,5 +141,6 @@ AppointmentForm.defaultProps = {
         'Extensions'
     ],
     today: new Date(),
-    availableTimeSlots: []
+    availableTimeSlots: [],
+    onSubmit: null,
 };
