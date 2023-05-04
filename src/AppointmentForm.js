@@ -33,11 +33,32 @@ const toShortDate = (timestamp) => {
     return `${day} ${dayOfMonth}`;
 };
 
+const RadioButtonIfAvailable = (( {
+    availableTimeSlots,
+    date,
+    timeSlot,
+    checkedTimeSlot,
+} ) => {
+    const startsAt = mergeDateAndTime(date, timeSlot);
+    if(availableTimeSlots.some((ats) => (ats.startsAt === startsAt))) {
+        const isChecked = startsAt === checkedTimeSlot;
+        return(
+            <input 
+                name="startsAt"
+                type="radio" 
+                value={startsAt}
+                checked={isChecked} />
+        );
+    }
+    return null;
+})
+
 const TimeSlotTable = ({ 
     salonOpensAt, 
     salonClosesAt,
     today,
-    availableTimeSlots
+    availableTimeSlots,
+    checkedTimeSlot,
 }) => {
     const timeSlots = dailyTimeSlots(salonOpensAt, salonClosesAt);
     const dates = weeklyDateValues(today);
@@ -58,11 +79,12 @@ const TimeSlotTable = ({
                         <th>{toTimeValue(timeSlot)}</th>
                         {dates.map(date => (
                             <td key={date}>
-                                {
-                                    availableTimeSlots.some((ats) => (ats.startsAt === mergeDateAndTime(date, timeSlot)))
-                                    ? <input type="radio"/>
-                                    : null
-                                }                                
+                                <RadioButtonIfAvailable 
+                                    availableTimeSlots={availableTimeSlots}
+                                    date={date}
+                                    timeSlot={timeSlot}
+                                    checkedTimeSlot={checkedTimeSlot}
+                                />                             
                             </td>
                         ))}
                     </tr>
@@ -94,6 +116,7 @@ export const AppointmentForm = ({
             salonClosesAt={salonClosesAt} 
             today={today}
             availableTimeSlots={availableTimeSlots}
+            checkedTimeSlot={original.startsAt}
         />
     </form>
 );

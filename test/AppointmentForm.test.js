@@ -57,17 +57,26 @@ describe('AppointmentForm', () => {
                 <AppointmentForm 
                     selectableServices={services}
                     original={appointment}
-                />
-            );
-            const option = findOption(field('service'), 'Blow-dry');
-
-            expect(option.selected).toBe(true);
-        });
-    });
-
+                    />
+                    );
+                    const option = findOption(field('service'), 'Blow-dry');
+                    
+                    expect(option.selected).toBe(true);
+                });
+            });
+            
     describe('time slot table', () => {
+                
+        const today = new Date();
+
+        const availableTimeSlots = [
+            { startsAt: today.setHours(9, 0, 0, 0) },
+            { startsAt: today.setHours(9, 30, 0, 0) },
+        ];
 
         const cellsWithRadioButtons = () => elements('input[type=radio]').map((el) => elements('td').indexOf(el.parentNode));
+        
+        const startsAtField = (index) => elements('input[name=startsAt]')[index];
 
         it('renders a table for time slots with an id', () => {
             render(<AppointmentForm original={blankAppointment} />);
@@ -109,7 +118,6 @@ describe('AppointmentForm', () => {
 
         it('renders radio buttons in the correct table cell positions', () => {
             const dayInMillis = 24 * 60 * 60 * 1000;
-            const today = new Date();
             const tomorrow = new Date(today.getTime() + dayInMillis);
             const availableTimeSlots = [
                 {startsAt: today.setHours(9, 0, 0, 0)},
@@ -125,17 +133,48 @@ describe('AppointmentForm', () => {
             );
             expect(cellsWithRadioButtons()).toEqual([0, 7, 8]);
         });
-    });
 
-    it('does not render radio buttons for unavailable time slots', () => {
-        render(
-            <AppointmentForm
-                original={blankAppointment}
-                availableTimeSlots={[]}
-            />
-        );
-        
-        expect(elements('input[type=radio]')).toHaveLength(0);
+        it('does not render radio buttons for unavailable time slots', () => {
+            render(
+                <AppointmentForm
+                    original={blankAppointment}
+                    availableTimeSlots={[]}
+                />
+            );
+            
+            expect(elements('input[type=radio]')).toHaveLength(0);
+        });
+
+        it('sets a radio button values to the startsAt value of the corresponding appointment', () => {
+            render(
+                <AppointmentForm
+                    original={blankAppointment}
+                    availableTimeSlots={availableTimeSlots}
+                    today={today}
+                />
+            );
+            const allRadioValues = elements('input[type=radio]').map(({ value }) => parseInt(value));
+            console.log(allRadioValues);
+            const allSlotTimes = availableTimeSlots.map(({ startsAt }) => startsAt);
+            console.log(allSlotTimes);
+
+            expect(allRadioValues).toEqual(allSlotTimes);
+        })
+
+        it('pre-selects the existing value', () => {
+            const appointment = {
+                startsAt: availableTimeSlots[1].startsAt,
+            }
+            render(
+                <AppointmentForm
+                    original={appointment}
+                    availableTimeSlots={availableTimeSlots}
+                    today={today}
+                />
+            );
+            console.log(document.body.innerHTML);
+            expect(startsAtField(1).checked).toEqual(true);
+        });
     });
 
 });
