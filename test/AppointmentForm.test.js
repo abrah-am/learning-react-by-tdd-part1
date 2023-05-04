@@ -57,7 +57,7 @@ describe('AppointmentForm', () => {
         click(submitButton());
     });
 
-    it('saves a new value when submitted', () => {
+    it('saves new value when submitted', () => {
         expect.hasAssertions();
 
         const appointment = {

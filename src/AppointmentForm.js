@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 
 const timeIncrements = (times, start, increment) => Array(times)
     .fill([start])
@@ -38,6 +38,7 @@ const RadioButtonIfAvailable = (( {
     date,
     timeSlot,
     checkedTimeSlot,
+    handleChange,
 } ) => {
     const startsAt = mergeDateAndTime(date, timeSlot);
     if(availableTimeSlots.some((ats) => (ats.startsAt === startsAt))) {
@@ -48,6 +49,7 @@ const RadioButtonIfAvailable = (( {
                 type="radio" 
                 value={startsAt}
                 checked={isChecked} 
+                onChange={handleChange}
                 readOnly/>
         );
     }
@@ -60,6 +62,7 @@ const TimeSlotTable = ({
     today,
     availableTimeSlots,
     checkedTimeSlot,
+    handleChange,
 }) => {
     const timeSlots = dailyTimeSlots(salonOpensAt, salonClosesAt);
     const dates = weeklyDateValues(today);
@@ -85,6 +88,7 @@ const TimeSlotTable = ({
                                     date={date}
                                     timeSlot={timeSlot}
                                     checkedTimeSlot={checkedTimeSlot}
+                                    handleChange={handleChange}
                                 />                             
                             </td>
                         ))}
@@ -104,9 +108,20 @@ export const AppointmentForm = ({
     availableTimeSlots,
     onSubmit,
 }) => {
+
+    const [appointment, setAppointment] = useState(original);
+
+    const handleStartsAtChange = useCallback(({ target: { value }}) => 
+        setAppointment((appointment) => ({
+            ...appointment,
+            startsAt: parseInt(value),
+        })),
+        []
+    );
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        onSubmit(original);
+        onSubmit(appointment);
     };
     return(
         <form onSubmit={handleSubmit}>
@@ -123,7 +138,8 @@ export const AppointmentForm = ({
                 salonClosesAt={salonClosesAt} 
                 today={today}
                 availableTimeSlots={availableTimeSlots}
-                checkedTimeSlot={original.startsAt}
+                checkedTimeSlot={appointment.startsAt}
+                handleChange={handleStartsAtChange}
             />
             <input type="submit" value="Add" />
         </form>)
