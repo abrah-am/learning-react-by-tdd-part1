@@ -119,6 +119,13 @@ export const AppointmentForm = ({
         })),
         []
     );
+        
+    const handleSelectBoxChange = ({ target: {value, name}}) => {
+        setAppointment((appointment) => ({
+            ...appointment,
+            [name]: value
+        }));
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -126,13 +133,19 @@ export const AppointmentForm = ({
     };
     return(
         <form onSubmit={handleSubmit}>
-            <select name="service" value={original.service} readOnly>
+            <label htmlFor="service">Service:</label>
+            <select name="service" value={original.service} onChange={handleSelectBoxChange}>
                 <option />
                 {
                     selectableServices.map(s => 
                         ( <option key={s}>{s}</option> )
                     )
                 }
+            </select>
+            <label htmlFor="stylist">Stylist:</label>
+            <select name="stylist" value={original.stylist} onChange={handleSelectBoxChange}>
+                <option />
+                <option key="Jo">Jo</option>
             </select>
             <TimeSlotTable 
                 salonOpensAt={salonOpensAt} 

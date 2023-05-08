@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { Appointment, AppointmentsDayView } from '../src/AppointmentsDayView';
 import { act } from 'react-dom/test-utils';
 import { initializeReactContainer, click, render, element, elements, textOf, typesOf  } from './reactTestExtensions';
+import { today, todayAt, tomorrowAt } from "./builders/time";
 
 describe("Appointment", () => {
     const blankCustomer = {
@@ -95,7 +96,7 @@ describe("Appointment", () => {
 
     it("renders the time as the heading", () => {
         const today = new Date();
-        const timestamp = today.setHours(9, 0, 0);
+        const timestamp = todayAt(9, 0, 0);
         render(<Appointment customer={blankCustomer} startsAt={timestamp} />);
         expect(element("h3")).toContainText("Today's appointment at 09:00");
     });
@@ -105,10 +106,10 @@ describe("Appointment", () => {
 describe("AppointmentsDayView", () => {
     const today = new Date();
     const appointments = [{ 
-        startsAt: today.setHours(12, 0), 
+        startsAt: todayAt(12, 0), 
         customer: { firstName: "Ashley " }
     }, { 
-        startsAt: today.setHours(13, 0), 
+        startsAt: todayAt(13, 0), 
         customer: { firstName: "Jordan "}  
     }];
     
