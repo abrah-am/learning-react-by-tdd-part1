@@ -135,6 +135,11 @@ describe('AppointmentForm', () => {
         click(submitButton());
     });
 
+    const itAssignsAnIdThatMatchesTheLabelId = (fieldName) => it('assigns an id that matches the label id', () => {
+        render(<AppointmentForm { ...testProps } />);
+        expect(field(fieldName).id).toEqual(fieldName)
+    });
+
     describe('service field', () => {
         itRendersSelectBox('service');
         itRendersALabel('service', 'Service:');
@@ -142,6 +147,7 @@ describe('AppointmentForm', () => {
         itPreselectsExistingValue('service', 'Blow-dry');
         itSubmitsExistingValue('service', 'Haircut');
         itSubmitsNewValue('service', 'Blow-dry');
+        itAssignsAnIdThatMatchesTheLabelId('service');
 
         it('lists all salon services', () => {
             render(
@@ -152,8 +158,6 @@ describe('AppointmentForm', () => {
 
             expect(labelsOfAllOptions(field('service'))).toEqual(expect.arrayContaining(services));
         })
-
-
     });
 
     describe('stylist field', () => {
@@ -163,8 +167,7 @@ describe('AppointmentForm', () => {
         itPreselectsExistingValue('stylist', 'Jo');
         itSubmitsExistingValue('stylist', 'Jo');
         itSubmitsNewValue('stylist', 'Jo');
-
-
+        itAssignsAnIdThatMatchesTheLabelId('stylist');
     });
 
     describe('time slot table', () => {
