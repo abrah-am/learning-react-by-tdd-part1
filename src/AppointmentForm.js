@@ -102,6 +102,8 @@ const TimeSlotTable = ({
 export const AppointmentForm = ({
     original,
     selectableServices,
+    selectableStylist,
+    servicesStylist,
     salonOpensAt,
     salonClosesAt,
     today,
@@ -131,6 +133,9 @@ export const AppointmentForm = ({
         event.preventDefault();
         onSubmit(appointment);
     };
+
+    const stylistsForService = appointment.service ? servicesStylist[appointment.service] : selectableStylist;
+
     return(
         <form onSubmit={handleSubmit}>
             <label htmlFor="service">Service:</label>
@@ -138,14 +143,17 @@ export const AppointmentForm = ({
                 <option />
                 {
                     selectableServices.map(s => 
-                        ( <option key={s}>{s}</option> )
-                    )
+                        (<option key={s}>{s}</option>))
                 }
             </select>
             <label htmlFor="stylist">Stylist:</label>
             <select id="stylist" name="stylist" value={original.stylist} onChange={handleSelectBoxChange}>
                 <option />
-                <option key="Jo">Jo</option>
+                {
+                    stylistsForService.map((s) => (
+                        <option key={s}>{s}</option>
+                    ))
+                }
             </select>
             <TimeSlotTable 
                 salonOpensAt={salonOpensAt} 
@@ -170,6 +178,20 @@ AppointmentForm.defaultProps = {
         'Haircut & beard trim',
         'Extensions'
     ],
+    selectableStylist: [
+        'Ashley',
+        'Jo',
+        'Pat',
+        'Sam'
+    ],
+    servicesStylist: {
+        Haircut: ['Ashely', 'Jo', 'Pat', 'Sam'],
+        'Blow-dry': ['Ashely', 'Jo', 'Pat', 'Sam'],
+        'Cut & Color': ['Ashely', 'Jo'],
+        'Beard trim': ['Pat', 'Sam'],
+        'Cut & beard trim': ['Pat', 'Sam'],
+        Extensions: ['Ashely', 'Pat']
+    },
     today: new Date(),
     availableTimeSlots: [],
     onSubmit: null,

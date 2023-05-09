@@ -12,6 +12,7 @@ describe('AppointmentForm', () => {
     });
 
     const services = ['Haircut', 'Blow-dry'];
+    const stylists = ['Ashely', 'Jo'];
     
 
     const blankAppointment = {
@@ -22,6 +23,7 @@ describe('AppointmentForm', () => {
     const testProps = {
         today,
         selectableServices: services,
+        selectableStylist: stylists,
         availableTimeSlots,
         original: blankAppointment,
     };
@@ -168,6 +170,24 @@ describe('AppointmentForm', () => {
         itSubmitsExistingValue('stylist', 'Jo');
         itSubmitsNewValue('stylist', 'Jo');
         itAssignsAnIdThatMatchesTheLabelId('stylist');
+
+        it('list only stylist that can perform the selected service', () => {
+            const selectableServices = ['1', '2'];
+            const selectableStylist = ['A', 'B', 'C'];
+            const serviceStylist = {
+                1: ['A', 'B']
+            };
+            const appointment = { service: 1 };
+            render(<AppointmentForm 
+                    { ...testProps } 
+                    original={appointment} 
+                    selectableServices={selectableServices} 
+                    selectableStylist={selectableStylist}
+                    servicesStylist={serviceStylist} />);
+
+            expect(labelsOfAllOptions(field('stylist'))).toEqual(expect.arrayContaining(['A', 'B']));
+
+        });
     });
 
     describe('time slot table', () => {
