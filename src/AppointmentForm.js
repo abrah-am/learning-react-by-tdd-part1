@@ -172,10 +172,10 @@ AppointmentForm.defaultProps = {
     salonOpensAt: 9,
     salonClosesAt: 19,
     selectableServices: [
-        'HairCut',
+        'Haircut',
         'Blow-dry',
         'Cut & Color',
-        'Beard Trim',
+        'Beard trim',
         'Haircut & beard trim',
         'Extensions'
     ],
@@ -190,7 +190,7 @@ AppointmentForm.defaultProps = {
         'Blow-dry': ['Ashely', 'Jo', 'Pat', 'Sam'],
         'Cut & Color': ['Ashely', 'Jo'],
         'Beard trim': ['Pat', 'Sam'],
-        'Cut & beard trim': ['Pat', 'Sam'],
+        'Haircut & beard trim': ['Pat', 'Sam'],
         Extensions: ['Ashely', 'Pat']
     },
     today: new Date(),
