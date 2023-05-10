@@ -20,6 +20,17 @@ describe('AppointmentForm', () => {
         sytlist: '',
     };
 
+    const availableTimeSlots = [
+        {
+            startsAt: todayAt(9),
+            stylists: ['Ashely', 'Jo'],
+        },
+        {
+            startsAt: todayAt(9, 30),
+            stylists: ['Ashely', 'Jo'],
+        }
+    ];
+
     const testProps = {
         today,
         selectableServices: services,
@@ -27,11 +38,6 @@ describe('AppointmentForm', () => {
         availableTimeSlots,
         original: blankAppointment,
     };
-
-    const availableTimeSlots = [
-        { startsAt: todayAt(9) },
-        { startsAt: todayAt(9, 30) },
-    ];
 
     const labelsOfAllOptions = (selectElement) => Array.from(selectElement.childNodes, (node) => node.textContent);
 
@@ -52,41 +58,6 @@ describe('AppointmentForm', () => {
         render(<AppointmentForm { ...testProps } />);
 
         expect(submitButton()).not.toBeNull();
-    });
-
-    it('saves existing value when submitted', () => {
-        expect.hasAssertions();
-
-        const appointment = {
-            startsAt: availableTimeSlots[1].startsAt,
-        }
-        render(
-            <AppointmentForm
-                original={appointment}
-                availableTimeSlots={availableTimeSlots}
-                today={today}
-                onSubmit={( { startsAt } ) => expect(startsAt).toEqual(availableTimeSlots[1].startsAt) }
-            />
-        );
-        click(submitButton());
-    });
-
-    it('saves new value when submitted', () => {
-        expect.hasAssertions();
-
-        const appointment = {
-            startsAt: availableTimeSlots[0].startsAt,
-        }
-        render(
-            <AppointmentForm
-                original={appointment}
-                availableTimeSlots={availableTimeSlots}
-                today={today}
-                onSubmit={( { startsAt } ) => expect(startsAt).toEqual(availableTimeSlots[1].startsAt) }
-            />
-        );
-        click(startsAtField(1));
-        click(submitButton());
     });
 
     const itRendersSelectBox = (fieldName) => it('renders a select box', () => {
@@ -123,7 +94,8 @@ describe('AppointmentForm', () => {
     const itSubmitsExistingValue = (fieldName, existing) => it('saves existing value when submitting', () => {
         expect.hasAssertions();
         const appointment = { [fieldName]: existing};
-        render(<AppointmentForm { ...testProps } 
+        render(<AppointmentForm 
+            { ...testProps } 
             original={appointment} 
             onSubmit={(props) => expect(props[fieldName]).toEqual(existing)} />);
         click(submitButton());
@@ -131,7 +103,8 @@ describe('AppointmentForm', () => {
 
     const itSubmitsNewValue = (fieldName, newValue) => it('saves new value when submitting', () => {
         expect.hasAssertions();
-        render(<AppointmentForm { ...testProps } 
+        render(<AppointmentForm 
+            { ...testProps } 
             onSubmit={(props) => expect(props[fieldName]).toEqual(newValue)} />);
         change(field(fieldName), newValue);              
         click(submitButton());
@@ -195,13 +168,14 @@ describe('AppointmentForm', () => {
         const cellsWithRadioButtons = () => elements('input[type=radio]').map((el) => elements('td').indexOf(el.parentNode));
         
         it('renders a table for time slots with an id', () => {
-            render(<AppointmentForm original={blankAppointment} />);
+            render(<AppointmentForm { ...testProps } original={blankAppointment} />);
             expect(element('table#time-slots')).not.toBeNull();
         });
 
         it('renders a time slot for every half an hour between open and close times', () => {
             render(
                 <AppointmentForm 
+                    { ...testProps }
                     original={blankAppointment}
                     salonOpensAt={9}
                     salonClosesAt={11}
@@ -215,7 +189,7 @@ describe('AppointmentForm', () => {
         });
 
         it('renders an empty cell at the start of the header row', () => {
-            render(<AppointmentForm original={blankAppointment} />);
+            render(<AppointmentForm { ...testProps } original={blankAppointment} />);
             const headerRow = element('thead > tr');
 
             expect(headerRow.firstChild).toContainText("");
@@ -223,7 +197,7 @@ describe('AppointmentForm', () => {
 
         it('renders a week of available dates', () => {
             const specificDate = new Date(2018, 11, 1);
-            render(<AppointmentForm original={blankAppointment} today={specificDate} />);
+            render(<AppointmentForm { ...testProps } original={blankAppointment} today={specificDate} />);
             const dates = elements('thead >* th:not(:first-child)');
 
             expect(dates).toHaveLength(7);
@@ -251,6 +225,7 @@ describe('AppointmentForm', () => {
         it('does not render radio buttons for unavailable time slots', () => {
             render(
                 <AppointmentForm
+                    { ...testProps }
                     original={blankAppointment}
                     availableTimeSlots={[]}
                 />
@@ -262,6 +237,7 @@ describe('AppointmentForm', () => {
         it('sets a radio button values to the startsAt value of the corresponding appointment', () => {
             render(
                 <AppointmentForm
+                    { ...testProps }
                     original={blankAppointment}
                     availableTimeSlots={availableTimeSlots}
                     today={today}
@@ -279,6 +255,7 @@ describe('AppointmentForm', () => {
             }
             render(
                 <AppointmentForm
+                    { ...testProps }
                     original={appointment}
                     availableTimeSlots={availableTimeSlots}
                     today={today}
@@ -286,6 +263,60 @@ describe('AppointmentForm', () => {
             );
 
             expect(startsAtField(1).checked).toEqual(true);
+        });
+
+        it('saves existing value when submitted', () => {
+            expect.hasAssertions();
+    
+            const appointment = {
+                startsAt: availableTimeSlots[1].startsAt,
+            }
+            render(
+                <AppointmentForm
+                    { ...testProps }
+                    original={appointment}
+                    availableTimeSlots={availableTimeSlots}
+                    today={today}
+                    onSubmit={( { startsAt } ) => expect(startsAt).toEqual(availableTimeSlots[1].startsAt) }
+                />
+            );
+            click(submitButton());
+        });
+
+        it('saves new value when submitted', () => {
+            expect.hasAssertions();
+    
+            const appointment = {
+                startsAt: availableTimeSlots[0].startsAt,
+            }
+            render(
+                <AppointmentForm
+                    { ...testProps }
+                    original={appointment}
+                    availableTimeSlots={availableTimeSlots}
+                    today={today}
+                    onSubmit={( { startsAt } ) => expect(startsAt).toEqual(availableTimeSlots[1].startsAt) }
+                />
+            );
+            click(startsAtField(1));
+            click(submitButton());
+        });
+
+        it('filters appointments by selected stylist', () => {
+            const availableTimeSlots = [
+                {
+                    startsAt: todayAt(9),
+                    stylists: ['Ashely'],
+                },
+                {
+                    startsAt: todayAt(9, 30),
+                    stylists: ['Jo']
+                }
+            ];
+
+            render(<AppointmentForm { ...testProps } availableTimeSlots={availableTimeSlots} />);
+            change(field('stylist'), 'Jo');
+            expect(cellsWithRadioButtons()).toEqual([7]);
         });
     });
 
