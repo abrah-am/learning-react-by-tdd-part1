@@ -14,6 +14,15 @@ describe('CustomerForm', () => {
         phoneNumber: "",
     };
 
+    const spy = () => {
+        let receivedArguments;
+        return {
+            fn: (...args) => (receivedArguments = args),
+            receivedArguments: () => receivedArguments,
+            receivedArgument: n => receivedArguments[n]
+        };
+    }
+
     it('renders a form', () => {
         render(<CustomerForm original={blankCustomer}/>);
         expect(form()).not.toBeNull();
@@ -51,16 +60,17 @@ describe('CustomerForm', () => {
 
     });
 
-    const itSavesExistingValueAtSubmit = (fieldName, value) => it('saves existing value when submitted', () => {
-        // tells Jest that it should expect at least one assertion to occur.
-        expect.hasAssertions();
+    const itSubmitsExistingValue = (fieldName, value) => it('saves existing value when submitted', () => {
+        const submitSpy = spy();
         const customer = { [fieldName]: value };
         render(
             <CustomerForm 
                 original={customer} 
-                onSubmit={ (props) => expect(props[fieldName]).toEqual(value)} />
+                onSubmit={submitSpy.fn} />
         );
         click(submitButton());
+        expect(submitSpy).toBeCalled(customer);
+        expect(submitSpy.receivedArgument(0)).toEqual(customer)
     });
 
     const itSavesNewValueWhenSubmitted = (fieldName, value) => it('saves new value when submitted', () => {
@@ -81,7 +91,7 @@ describe('CustomerForm', () => {
         itIncludesTheExistingValue('firstName', 'Ashley');
         itRendersLabel('firstName', 'First name');
         itAssignesIdMatchingLabelId('firstName');
-        itSavesExistingValueAtSubmit('firstName', 'Ashley');
+        itSubmitsExistingValue('firstName', 'Ashley');
         itSavesNewValueWhenSubmitted('firstName', 'Jamie');
     });
 
@@ -90,16 +100,16 @@ describe('CustomerForm', () => {
         itIncludesTheExistingValue('lastName', 'Smith');
         itRendersLabel('lastName', 'Last name');
         itAssignesIdMatchingLabelId('lastName');
-        itSavesExistingValueAtSubmit('lastName', 'Smith');
+        itSubmitsExistingValue('lastName', 'Smith');
         itSavesNewValueWhenSubmitted('lastName', 'Test2');
     });
 
-    describe('last name field', () => {
+    describe('phone number field', () => {
         itRendersAsATextBox('phoneNumber');
         itIncludesTheExistingValue('phoneNumber', '1234567890');
         itRendersLabel('phoneNumber', 'Phone number');
         itAssignesIdMatchingLabelId('phoneNumber');
-        itSavesExistingValueAtSubmit('phoneNumber', '1234567890');
+        itSubmitsExistingValue('phoneNumber', '1234567890');
         itSavesNewValueWhenSubmitted('phoneNumber', '0987654321');
     });
 
