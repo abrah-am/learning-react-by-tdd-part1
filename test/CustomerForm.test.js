@@ -69,8 +69,7 @@ describe('CustomerForm', () => {
                 onSubmit={submitSpy.fn} />
         );
         click(submitButton());
-        expect(submitSpy).toBeCalled(customer);
-        expect(submitSpy.receivedArgument(0)).toEqual(customer)
+        expect(submitSpy).toBeCalledWith(customer);
     });
 
     const itSavesNewValueWhenSubmitted = (fieldName, value) => it('saves new value when submitted', () => {

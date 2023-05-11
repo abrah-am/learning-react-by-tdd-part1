@@ -9,12 +9,19 @@ expect.extend({
     toHaveClass,
     toBeInputFieldOfType,
     toBeElementWithTag,
-    toBeCalled(recived) {
-        if(recived.receivedArguments() === undefined) {
+    toBeCalledWith(received, ...expectedArguments) {
+        if(received.receivedArguments() === undefined) {
             return {
                 pass: false,
                 message: () => "Spy was not called.",
             }
+        }
+        const notMatch = !this.equals(received.receivedArguments(), expectedArguments);
+        if (notMatch) {
+            return {
+                pass: false,
+                message: () => "Spy called with the wrong arguments: " + receivedArguments() + "."
+            };
         }
         return {
             pass: true,
