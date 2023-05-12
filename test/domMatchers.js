@@ -16,11 +16,13 @@ expect.extend({
                 message: () => "Spy was not called.",
             }
         }
+
         const notMatch = !this.equals(received.receivedArguments(), expectedArguments);
+
         if (notMatch) {
             return {
                 pass: false,
-                message: () => "Spy called with the wrong arguments: " + receivedArguments() + "."
+                message: () => "Spy called with the wrong arguments: " + received.receivedArguments() + "."
             };
         }
         return {

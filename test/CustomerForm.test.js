@@ -4,8 +4,18 @@ import { CustomerForm } from '../src/CustomerForm'
 
 
 describe('CustomerForm', () => {
+
+    const originalFetch = global.fetch;
+    let fetchSpy;
+
     beforeEach(() => {
         initializeReactContainer();
+        fetchSpy = spy();
+        global.fetch = fetchSpy.fn;
+    });
+
+    afterEach(() => {
+        global.fetch = originalFetch;
     });
 
     const blankCustomer = { 
@@ -61,27 +71,28 @@ describe('CustomerForm', () => {
     });
 
     const itSubmitsExistingValue = (fieldName, value) => it('saves existing value when submitted', () => {
-        const submitSpy = spy();
         const customer = { [fieldName]: value };
         render(
-            <CustomerForm 
-                original={customer} 
-                onSubmit={submitSpy.fn} />
+            <CustomerForm original={customer} />
         );
         click(submitButton());
-        expect(submitSpy).toBeCalledWith(customer);
+        expect(fetchSpy).toBeCalledWith(expect.anything(), expect.objectContaining({
+            body: JSON.stringify(customer)
+        }));
     });
 
-    const itSavesNewValueWhenSubmitted = (fieldName, value) => it('saves new value when submitted', () => {
-        expect.hasAssertions();
+    const itSubmitsNewValue = (fieldName, value) => it('saves new value when submitted', () => {
         render(
-            <CustomerForm
-                original={blankCustomer}
-                onSubmit={( props ) => expect(props[fieldName]).toEqual(value)}
-            />
+            <CustomerForm original={blankCustomer} />
         );
         change(field(fieldName), value);
         click(submitButton());
+        expect(fetchSpy).toBeCalledWith(expect.anything(), expect.objectContaining({
+            body: JSON.stringify({
+                ...blankCustomer,
+                [fieldName] : value,
+            })
+        }));
     });
 
 
@@ -91,7 +102,7 @@ describe('CustomerForm', () => {
         itRendersLabel('firstName', 'First name');
         itAssignesIdMatchingLabelId('firstName');
         itSubmitsExistingValue('firstName', 'Ashley');
-        itSavesNewValueWhenSubmitted('firstName', 'Jamie');
+        itSubmitsNewValue('firstName', 'Jamie');
     });
 
     describe('last name field', () => {
@@ -100,7 +111,7 @@ describe('CustomerForm', () => {
         itRendersLabel('lastName', 'Last name');
         itAssignesIdMatchingLabelId('lastName');
         itSubmitsExistingValue('lastName', 'Smith');
-        itSavesNewValueWhenSubmitted('lastName', 'Test2');
+        itSubmitsNewValue('lastName', 'Test2');
     });
 
     describe('phone number field', () => {
@@ -109,7 +120,7 @@ describe('CustomerForm', () => {
         itRendersLabel('phoneNumber', 'Phone number');
         itAssignesIdMatchingLabelId('phoneNumber');
         itSubmitsExistingValue('phoneNumber', '1234567890');
-        itSavesNewValueWhenSubmitted('phoneNumber', '0987654321');
+        itSubmitsNewValue('phoneNumber', '0987654321');
     });
 
     it('renders a submit button', () => {
@@ -118,8 +129,22 @@ describe('CustomerForm', () => {
     });
 
     it('prevents the default action when sumitting the form', () => {
-        render(<CustomerForm original={blankCustomer} onSubmit={() => {}} />);
+        render(<CustomerForm original={blankCustomer} />);
         const event = submit(form());
         expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('sends request POST /customers when submitting the form', () => {
+        render(<CustomerForm original={blankCustomer} />);
+        click(submitButton());
+        expect(fetchSpy).toBeCalledWith('/customers', expect.objectContaining(
+            { method: "POST" }));
+    });
+
+    it('calls fetch with the right configuration', () => {
+        render(<CustomerForm original={blankCustomer} />);
+        click(submitButton());
+        expect(fetchSpy).toBeCalledWith(expect.anything(), expect.objectContaining(
+            { credentials: "same-origin", headers: { "Content-Type": "application/json" } }));
     });
 });
