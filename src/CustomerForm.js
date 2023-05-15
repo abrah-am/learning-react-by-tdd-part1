@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export const CustomerForm = ({ original }) => { 
+export const CustomerForm = ({ original, onSave }) => { 
 
     const [ customer, setCustomer ] = useState(original); 
 
@@ -9,9 +9,9 @@ export const CustomerForm = ({ original }) => {
         [target.name]: target.value
     }));
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        global.fetch('/customers', { 
+        const result = await global.fetch('/customers', { 
             method: "POST",
             credentials: 'same-origin',
             headers: { 
@@ -19,6 +19,8 @@ export const CustomerForm = ({ original }) => {
             },
             body: JSON.stringify(customer),
         });
+        const customerWithId = await result.json();
+        onSave(customerWithId)
     };
 
     return (
