@@ -2,12 +2,20 @@ import React, { useState } from "react";
 
 export const CustomerForm = ({ original, onSave }) => { 
 
+    const [error, setError] = useState(false);
+
     const [ customer, setCustomer ] = useState(original); 
 
     const handleChange = ({ target }) => setCustomer((customer) => ({
         ...customer,
         [target.name]: target.value
     }));
+
+    const Error = ({ hasError }) => (
+        <p role="alert">
+            { hasError ? 'An error occurred during save' : '' }
+        </p>
+    );
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -19,12 +27,18 @@ export const CustomerForm = ({ original, onSave }) => {
             },
             body: JSON.stringify(customer),
         });
-        const customerWithId = await result.json();
-        onSave(customerWithId)
+        if (result.ok) {
+            const customerWithId = await result.json();
+            onSave(customerWithId)
+        }
+        else {
+            setError(true);
+        }
     };
 
     return (
         <form onSubmit={handleSubmit}>
+            <Error hasError={error} />
             <label htmlFor="firstName">First name</label>
             <input 
                 id="firstName" 
