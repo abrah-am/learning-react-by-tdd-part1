@@ -8,7 +8,6 @@ import { CustomerForm } from '../src/CustomerForm'
 
 describe('CustomerForm', () => {
 
-    const originalFetch = global.fetch;
     let fetchSpy;
 
     const bodyOfLastFetchRequest = () => {
@@ -124,7 +123,7 @@ describe('CustomerForm', () => {
     describe('when POST request returns an error', () => {
 
         beforeEach(() => {
-            global.fetch.mockResolvedValue(fetchResponseError());
+            global.fetch.mockResolvedValueOnce(fetchResponseError());
         });
 
         it('does not notify onSave', async () => {
@@ -138,6 +137,14 @@ describe('CustomerForm', () => {
             render(<CustomerForm original={blankCustomer} />);
             await clickAndWait(submitButton());
             expect(element('[role=alert]')).toContainText('error occurred');
+        });
+
+        it('clears error message when fetch call succeeds', async () => {            
+            render(<CustomerForm original={blankCustomer} onSave={() => {}}/>);
+            await clickAndWait(submitButton());
+            global.fetch.mockResolvedValueOnce(fetchResponseOK());
+            await clickAndWait(submitButton());
+            expect(element('[role=alert]')).not.toContainText('error occurred');
         });
 
     });
@@ -185,4 +192,5 @@ describe('CustomerForm', () => {
         render(<CustomerForm original={blankCustomer} />);
         expect(element('[role=alert]')).not.toContainText('error occurred')
     });
+
 });
