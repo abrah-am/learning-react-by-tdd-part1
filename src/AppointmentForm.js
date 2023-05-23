@@ -33,6 +33,10 @@ const toShortDate = (timestamp) => {
     return `${day} ${dayOfMonth}`;
 };
 
+const Error = ({ hasError }) => (
+    <p role='alert'>{ hasError? 'Error occurred' : ''}</p>
+);
+
 const RadioButtonIfAvailable = (( {
     availableTimeSlots,
     date,
@@ -108,10 +112,11 @@ export const AppointmentForm = ({
     salonClosesAt,
     today,
     availableTimeSlots,
-    onSubmit,
+    onSave,
 }) => {
 
     const [appointment, setAppointment] = useState(original);
+    const [hasError, setHasError] = useState(false);
 
     // useCallback: 
     const handleStartsAtChange = useCallback(({ target: { value }}) => 
@@ -129,9 +134,27 @@ export const AppointmentForm = ({
         }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        onSubmit(appointment);
+        const result = await global.fetch(
+            '/appointments', 
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(appointment)
+            }
+        );
+        if(result.ok) {
+            setHasError(false);
+            onSave();
+        }
+        else {
+            setHasError(true);
+        }
+        
     };
 
     const stylistsForService = appointment.service ? servicesStylist[appointment.service] : selectableStylist;
@@ -139,6 +162,7 @@ export const AppointmentForm = ({
 
     return(
         <form onSubmit={handleSubmit}>
+            <Error hasError={hasError}/>
             <label htmlFor="service">Service:</label>
             <select id="service" name="service" value={original.service} onChange={handleSelectBoxChange}>
                 <option />
@@ -194,5 +218,5 @@ AppointmentForm.defaultProps = {
         Extensions: ['Ashely', 'Pat']
     },
     today: new Date(),
-    onSubmit: null,
+    onSave: () => {},
 };

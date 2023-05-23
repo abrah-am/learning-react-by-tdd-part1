@@ -4,17 +4,13 @@ import {
     form, field, click, submit, submitButton, change, 
     labelFor, clickAndWait, submitAndAwait  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
+import { bodyOfLastFetchRequest } from "./spyHelpers";
+import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
 
 
 describe('CustomerForm', () => {
 
     let fetchSpy;
-
-    const bodyOfLastFetchRequest = () => {
-        const allCalls = global.fetch.mock.calls;
-        const lastCall = allCalls[allCalls.length - 1];
-        return JSON.parse(lastCall[1].body);
-    };
 
     beforeEach(() => {
         initializeReactContainer();
@@ -28,13 +24,6 @@ describe('CustomerForm', () => {
         lastName: "", 
         phoneNumber: "",
     };
-
-    const fetchResponseOK = (body) => Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(body)
-    });
-
-    const fetchResponseError = () => Promise.resolve({ ok: false });
 
     it('renders a form', () => {
         render(<CustomerForm original={blankCustomer}/>);
