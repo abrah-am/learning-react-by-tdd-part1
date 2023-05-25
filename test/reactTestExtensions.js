@@ -2,13 +2,17 @@ import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
 
 export let container; 
+let rootContainer;
 
 export const initializeReactContainer = () => {
     container = document.createElement("div");
     document.body.replaceChildren(container);
+    rootContainer = ReactDOM.createRoot(container);
 }
 
-export const render = (component) => act(() => ReactDOM.createRoot(container).render(component));
+export const render = (component) => act(() => rootContainer.render(component));
+
+export const renderAndAwait = (component) => act(async () => rootContainer.render(component));
 
 export const click = (element) => act(() => element.click());
 
