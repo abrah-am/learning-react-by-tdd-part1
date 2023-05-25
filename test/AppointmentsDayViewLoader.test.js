@@ -50,4 +50,9 @@ describe('AppointmentsDayViewLoader', () => {
       }
     });
   });
+
+  it('passes fetched appointments to AppointmentDayView once they are loaded', async () => {
+    await renderAndAwait(<AppointmentsDayViewLoader />);
+    expect(AppointmentsDayView).toHaveBeenLastCalledWith({ appointments }, expect.anything());
+  });
 });
