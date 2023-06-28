@@ -1,10 +1,14 @@
 import React from "react";
-import { element, render, click } from "./reactTestExtensions";
+import { element, render, click, propsOf } from "./reactTestExtensions";
 import { App } from "../src/App";
 import { initializeReactContainer } from "./reactTestExtensions";
 import { AppointmentsDayViewLoader } from "../src/AppointmentsDayViewLoader";
+import { AppointmentFormLoader } from "../src/AppointmentFormLoader"
 import { CustomerForm } from "../src/CustomerForm";
 import { blankCustomer } from "./builders/customer";
+import { blankAppointment } from "./builders/appointment";
+
+import { act } from "react-dom/test-utils";
 
 jest.mock('../src/AppointmentsDayViewLoader', () => ({
     AppointmentsDayViewLoader: jest.fn(() => (
@@ -18,9 +22,18 @@ jest.mock('../src/CustomerForm', () => ({
     )),
 }));
 
+jest.mock('../src/AppointmentFormLoader', () => ({
+    AppointmentFormLoader: jest.fn(() => (
+        <div id="AppointmentFormLoader" />
+    ))
+}));
+
 describe('App', () => {
     const beginAddingCustomerAndAppointment = () => 
         click(element('menu > li > button:first-of-type'));
+
+    const exampleCustomer = { id: 123 };
+    const saveCustomer = (customer = exampleCustomer) => act(() => propsOf(CustomerForm).onSave(customer));
 
     beforeEach(() => {
         initializeReactContainer();
@@ -62,4 +75,27 @@ describe('App', () => {
         expect(element('#AppointmentsDayViewLoader')).toBeNull();
     });
 
+    it('hides the button bar when CustomerForm is being displayed', async() => {
+        render(<App />);
+        beginAddingCustomerAndAppointment();
+        expect(element("menu")).toBeNull();
+    });
+
+    it('displays the AppointmentFormLoader after the CustomerForm is submitted', async () => {
+        render(<App />);
+        beginAddingCustomerAndAppointment();
+        saveCustomer();
+        expect(element('#AppointmentFormLoader')).not.toBeNull();
+    });
+
+    it('passes a blank original appointment object to CustomerForm', async () => {
+        render(<App />);
+        beginAddingCustomerAndAppointment();
+        saveCustomer();
+        expect(AppointmentFormLoader).toBeRenderedWithProps(
+            expect.objectContaining({
+                original: expect.objectContaining(blankAppointment),
+            })
+        );
+    });
 });

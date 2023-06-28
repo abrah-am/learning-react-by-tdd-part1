@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { act } from "react-dom/test-utils";
+import { act, mockComponent } from "react-dom/test-utils";
 
 export let container; 
 let rootContainer;
@@ -58,3 +58,8 @@ export const labelFor = (fieldName) => element(`label[for=${fieldName}]`);
 export const clickAndWait = async (element) => act(async () => click(element));
 
 export const submitAndAwait = async (formElement) => act(async () => submit(formElement));
+
+export const propsOf = (mockComponent) => {
+    const lastCall = mockComponent.mock.calls[mockComponent.mock.calls.length - 1];
+    return lastCall[0];
+}
