@@ -6,6 +6,7 @@ import {
 import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
+import { blankCustomer } from "./builders/customer";
 
 
 describe('CustomerForm', () => {
@@ -18,12 +19,6 @@ describe('CustomerForm', () => {
             .spyOn(global, 'fetch')
             .mockResolvedValue(fetchResponseOK({}));
     });
-
-    const blankCustomer = { 
-        firstName: "",
-        lastName: "", 
-        phoneNumber: "",
-    };
 
     it('renders a form', () => {
         render(<CustomerForm original={blankCustomer}/>);

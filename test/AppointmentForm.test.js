@@ -4,6 +4,7 @@ import { AppointmentForm } from "../src/AppointmentForm";
 import { today, todayAt, tomorrowAt } from "./builders/time";
 import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
 import { bodyOfLastFetchRequest } from "./spyHelpers";
+import { blankAppointment } from "./builders/appointment";
 
 
 
@@ -16,12 +17,6 @@ describe('AppointmentForm', () => {
 
     const services = ['Haircut', 'Blow-dry'];
     const stylists = ['Ashely', 'Jo'];
-    
-
-    const blankAppointment = {
-        service: '',
-        sytlist: '',
-    };
 
     const availableTimeSlots = [
         {
@@ -114,6 +109,21 @@ describe('AppointmentForm', () => {
         await clickAndWait(submitButton());
         await clickAndWait(submitButton());
         expect(element('[role=alert]')).not.toContainText('Error occurred');
+    });
+
+    it.only('passes the customer id to fetch when submitting', async () => {
+        const appointment = {
+            ...blankAppointment,
+            customer: '123'
+        };
+
+        render(
+            <AppointmentForm { ...testProps } original={appointment}/>
+        );
+        await clickAndWait(submitButton());
+        expect(bodyOfLastFetchRequest()).toMatchObject({
+            customer: '123'
+        });
     });
 
     const itRendersSelectBox = (fieldName) => it('renders a select box', () => {
