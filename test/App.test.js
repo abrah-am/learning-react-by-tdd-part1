@@ -98,4 +98,28 @@ describe('App', () => {
             })
         );
     });
+
+    const saveAppointment = () => act(() => propsOf(AppointmentFormLoader).onSave());
+    
+    it('passes the customer to the AppointmentForm', async () => {
+        const customer = { id: 123 };
+        render(<App />);
+        beginAddingCustomerAndAppointment();
+        saveCustomer(customer);
+        expect(AppointmentFormLoader).toBeRenderedWithProps(
+            expect.objectContaining({
+                original: expect.objectContaining({
+                    customer: customer.id
+                }),
+            })
+        );
+    });
+
+    it('renders AppointmentDayViewLoader after AppointmentForm is submitted', async () => {
+        render(<App />);
+        beginAddingCustomerAndAppointment();
+        saveCustomer();
+        saveAppointment();
+        expect(AppointmentsDayViewLoader).toBeRendered();
+    });
 });

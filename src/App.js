@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import { AppointmentsDayViewLoader } from "./AppointmentsDayViewLoader";
 import { CustomerForm } from "./CustomerForm";
 import { AppointmentFormLoader } from "./AppointmentFormLoader";
+import { act } from "react-dom/test-utils";
 
 const blankAppointment = {
     service: '',
@@ -16,7 +17,12 @@ const blankCustomer = {
 export const App = () => {
     const [view, setView] = useState("dayView");
     const transitionToAddCustomer = useCallback(()=> setView("addCustomer"), []);
-    const transitionToAddAppointment = useCallback(() => { setView("addAppointment") }, []);
+    const transitionToDayView = useCallback(() => setView("dayView"), [])
+    const transitionToAddAppointment = useCallback((customer) => { 
+        setCustomer(customer);
+        setView("addAppointment");
+    }, []);
+    const [customer, setCustomer] = useState();
 
     switch (view) {
         case "addCustomer":
@@ -25,7 +31,7 @@ export const App = () => {
             );
         case "addAppointment":
             return (
-                <AppointmentFormLoader original={blankAppointment} />
+                <AppointmentFormLoader original={{...blankAppointment, customer: customer.id }} onSave={transitionToDayView} />
             );
         default:
             return (
