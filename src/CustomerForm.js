@@ -6,16 +6,39 @@ export const CustomerForm = ({ original, onSave }) => {
 
     const [ customer, setCustomer ] = useState(original); 
 
+    const [validationErrors, setValidationErrors] = useState({});
+
     const handleChange = ({ target }) => setCustomer((customer) => ({
         ...customer,
         [target.name]: target.value
     }));
+
+    const renderError = (fieldName) => (
+        <span id="firstNameError" role="alert">
+            { hasError(fieldName) ? validationErrors[fieldName] : '' }
+        </span>
+    );
+
+    const required = description => value => !value || value.trim() === '' ? description : undefined;
 
     const Error = ({ hasError }) => (
         <p role="alert">
             { hasError ? 'An error occurred during save' : '' }
         </p>
     );
+
+    const hasError = (fieldName) => validationErrors[fieldName] !== undefined;
+
+    const handleBlur = ({ target }) => {
+        const validators = {
+            firstName: required('First name is required')
+        };
+        const result = validators[target.name](target.value);
+        setValidationErrors({
+            ...validationErrors,
+            [target.name]: result
+        })
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -47,7 +70,10 @@ export const CustomerForm = ({ original, onSave }) => {
                 name="firstName" 
                 value={customer.firstName} 
                 onChange={handleChange} 
+                onBlur={handleBlur}
+                aria-describedby="firstNameError"
             />
+            { renderError('firstName') }
 
             <label htmlFor="lastName">Last name</label>
             <input 

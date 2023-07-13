@@ -63,3 +63,10 @@ export const propsOf = (mockComponent) => {
     const lastCall = mockComponent.mock.calls[mockComponent.mock.calls.length - 1];
     return lastCall[0];
 }
+
+export const withFocus = (target, fn) => 
+    act(() => {
+        target.focus();
+        fn();
+        target.blur();
+});
