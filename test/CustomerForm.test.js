@@ -6,7 +6,7 @@ import {
 import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
-import { blankCustomer } from "./builders/customer";
+import { blankCustomer, validCustomer } from "./builders/customer";
 
 
 describe('CustomerForm', () => {
@@ -58,7 +58,10 @@ describe('CustomerForm', () => {
     });
 
     const itSubmitsExistingValue = (fieldName, value) => it('saves existing value when submitted', async () => {
-        const customer = { [fieldName]: value };
+        const customer = { 
+            ...validCustomer,
+            [fieldName]: value 
+        };
         render(
             <CustomerForm original={customer} onSave={() => {}} />
         );
@@ -67,13 +70,14 @@ describe('CustomerForm', () => {
     });
 
     const itSubmitsNewValue = (fieldName, value) => it('saves new value when submitted', async () => {
-        const customer = { [fieldName]: value }
         render(
-            <CustomerForm original={blankCustomer} onSave={() => {}} />
+            <CustomerForm original={validCustomer} onSave={() => {}} />
         );
         change(field(fieldName), value);
         await clickAndWait(submitButton());
-        expect(bodyOfLastFetchRequest()).toMatchObject(customer);
+        expect(bodyOfLastFetchRequest()).toMatchObject({
+            [fieldName]: value,
+        })
     });
 
 
@@ -112,19 +116,19 @@ describe('CustomerForm', () => {
 
         it('does not notify onSave', async () => {
             const saveSpy = jest.fn();
-            render(<CustomerForm original={blankCustomer} onSave={saveSpy.fn} />);
+            render(<CustomerForm original={validCustomer} onSave={saveSpy.fn} />);
             await clickAndWait(submitButton());
             expect(saveSpy).not.toBeCalled();
         });
     
         it('renders error message', async () => {
-            render(<CustomerForm original={blankCustomer} />);
+            render(<CustomerForm original={validCustomer} />);
             await clickAndWait(submitButton());
             expect(element('[role=alert]')).toContainText('error occurred');
         });
 
         it('clears error message when fetch call succeeds', async () => {            
-            render(<CustomerForm original={blankCustomer} onSave={() => {}}/>);
+            render(<CustomerForm original={validCustomer} onSave={() => {}}/>);
             await clickAndWait(submitButton());
             global.fetch.mockResolvedValueOnce(fetchResponseOK());
             await clickAndWait(submitButton());
@@ -139,32 +143,31 @@ describe('CustomerForm', () => {
     });
 
     it('prevents the default action when sumitting the form', async () => {
-        render(<CustomerForm original={blankCustomer} onSave={() => {}} />);
+        render(<CustomerForm original={validCustomer} onSave={() => {}} />);
         const event = await submitAndAwait(form());
         expect(event.defaultPrevented).toBe(true);
     });
 
     it('sends request POST /customers when submitting the form', async () => {
-        render(<CustomerForm original={blankCustomer} onSave={() => {}} />);
+        render(<CustomerForm original={validCustomer} onSave={() => {}} />);
         await clickAndWait(submitButton());
         expect(global.fetch).toBeCalledWith('/customers', expect.objectContaining(
             { method: "POST" }));
     });
 
     it('calls fetch with the right configuration', async () => {
-        render(<CustomerForm original={blankCustomer} onSave={() => {}} />);
+        render(<CustomerForm original={validCustomer} onSave={() => {}} />);
         await clickAndWait(submitButton());
         expect(global.fetch).toBeCalledWith(expect.anything(), expect.objectContaining(
             { credentials: "same-origin", headers: { "Content-Type": "application/json" } }));
     });
 
     it('notifies onSave when form is submitted', async () => {
-        const customer = { id: 123 };
-        global.fetch.mockResolvedValue(fetchResponseOK(customer));
+        global.fetch.mockResolvedValue(fetchResponseOK(validCustomer));
         const saveSpy = jest.fn();
-        render(<CustomerForm original={customer} onSave={saveSpy} />);
+        render(<CustomerForm original={validCustomer} onSave={saveSpy} />);
         await clickAndWait(submitButton());
-        expect(saveSpy).toBeCalledWith(customer);
+        expect(saveSpy).toBeCalledWith(validCustomer);
     });
 
     it('renders an alert space', async () => {
@@ -178,25 +181,62 @@ describe('CustomerForm', () => {
     });
 
     describe('validation', () => {
-        it('renders an alert space for first name validation errors', () => {
+
+        const errorFor = (fieldName) => element(`#${fieldName}Error[role=alert]`);
+
+        const itRendersAlertForFieldValidation = (fieldName) => {
+            it(`renders an alert space for ${fieldName} validation errors`, () => {
+                render(<CustomerForm original={blankCustomer} />);
+                expect(errorFor(fieldName)).not.toBeNull();
+            });
+        };
+        const itSetsAlertAsAccessibleDescriptionForField = (fieldName) => {
+            it(`sets alert as accessible description for the  ${fieldName} field`, async () => {
+                render(<CustomerForm original={blankCustomer} />);
+                expect(field(fieldName).getAttribute('aria-describedby')).toEqual(`${fieldName}Error`);
+            });
+        };
+        const itInvalidatesFieldWithValue = (
+            fieldName,
+            value,
+            description
+        ) => {
+            it(`displays error after blur when ${fieldName} field is ${value}`, () => {
+                render(<CustomerForm original={blankCustomer} />);
+                withFocus(field(fieldName), () => change(field(fieldName), value));
+                expect(errorFor(fieldName)).toContainText(description);
+            });
+        };
+        const itInitiallyHasNoTextInTheAlertSpace = (fieldName) => {
+            it(`initially has not text in the ${fieldName} field alert space`, async () => {
+                render(<CustomerForm original={blankCustomer} />);
+                expect(errorFor(fieldName).textContent).toEqual('');
+            });
+        };
+
+        it('accepts standard phone number characters when validating', () => {
             render(<CustomerForm original={blankCustomer} />);
-            expect(element('#firstNameError[role=alert]')).not.toBeNull();
+            withFocus(
+                field('phoneNumber'), () => change(field('phoneNumber'), '0123456789+()-')
+            );
+            expect(errorFor('phoneNumber')).not.toContainText('Only numbers');
         });
 
-        it('sets alert as accessible description for the first name field', async () => {
-            render(<CustomerForm original={blankCustomer} />);
-            expect(field('firstName').getAttribute('aria-describedby')).toEqual('firstNameError');
-        });
+        itRendersAlertForFieldValidation('firstName');
+        itRendersAlertForFieldValidation('lastName');
+        itRendersAlertForFieldValidation('phoneNumber');
+        
+        itSetsAlertAsAccessibleDescriptionForField('firstName');
+        itSetsAlertAsAccessibleDescriptionForField('lastName');
+        itSetsAlertAsAccessibleDescriptionForField('phoneNumber');
 
-        it('displays error after blur when first name field is blank', () => {
-            render(<CustomerForm original={blankCustomer} />);
-            withFocus(field('firstName'), () => change(field('firstName'), ""));
-            expect(element('#firstNameError[role=alert]')).toContainText('First name is required');
-        });
+        itInvalidatesFieldWithValue('firstName', '', 'First name is required');
+        itInvalidatesFieldWithValue('lastName', ' ', 'Last name is required');
+        itInvalidatesFieldWithValue('phoneNumber', '', 'Phone number is required');
+        itInvalidatesFieldWithValue('phoneNumber', 'invalid', 'Only numbers, spaces and these symbols are allowed: () + -')
 
-        it('initially has not text in the first name field alert space', async () => {
-            render(<CustomerForm original={blankCustomer} />);
-            expect(element('#firstNameError[role=alert]').textContent).toEqual('');
-        });
+        itInitiallyHasNoTextInTheAlertSpace('firstName');
+        itInitiallyHasNoTextInTheAlertSpace('lastName');
+        itInitiallyHasNoTextInTheAlertSpace('phoneNumber')
     });
 });

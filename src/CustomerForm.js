@@ -2,6 +2,13 @@ import React, { useState } from "react";
 
 export const CustomerForm = ({ original, onSave }) => { 
 
+    const match = (re, description) => value => !value.match(re) ? description : undefined;
+
+    const list = (...validators) => value => validators.reduce(
+        (result, validator) => result || validator(value), 
+        undefined
+    );
+
     const [error, setError] = useState(false);
 
     const [ customer, setCustomer ] = useState(original); 
@@ -14,7 +21,7 @@ export const CustomerForm = ({ original, onSave }) => {
     }));
 
     const renderError = (fieldName) => (
-        <span id="firstNameError" role="alert">
+        <span id={`${fieldName}Error`} role="alert">
             { hasError(fieldName) ? validationErrors[fieldName] : '' }
         </span>
     );
@@ -31,7 +38,12 @@ export const CustomerForm = ({ original, onSave }) => {
 
     const handleBlur = ({ target }) => {
         const validators = {
-            firstName: required('First name is required')
+            firstName: required('First name is required'),
+            lastName: required('Last name is required'),
+            phoneNumber: list(
+                required('Phone number is required'),
+                match(/^[0-9+()\-]*$/, 'Only numbers, spaces and these symbols are allowed: () + -')
+            )
         };
         const result = validators[target.name](target.value);
         setValidationErrors({
@@ -82,7 +94,10 @@ export const CustomerForm = ({ original, onSave }) => {
                 name="lastName"
                 value={customer.lastName}
                 onChange={handleChange}
+                onBlur={handleBlur}
+                aria-describedby="lastNameError"
             />
+            { renderError('lastName') }
 
             <label htmlFor="phoneNumber">Phone number</label>
             <input
@@ -91,7 +106,10 @@ export const CustomerForm = ({ original, onSave }) => {
                 name="phoneNumber"
                 value={customer.phoneNumber}
                 onChange={handleChange}
+                aria-describedby="phoneNumberError"
+                onBlur={handleBlur}
             />
+            { renderError('phoneNumber') }
 
             <input 
                 type="submit" 
