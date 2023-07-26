@@ -2,7 +2,7 @@ import React from "react";
 import { 
     initializeReactContainer, render, element, 
     form, field, click, submit, submitButton, change, 
-    labelFor, clickAndWait, submitAndAwait, withFocus  } from "./reactTestExtensions";
+    labelFor, clickAndWait, submitAndAwait, withFocus, textOf, elements  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
@@ -238,5 +238,19 @@ describe('CustomerForm', () => {
         itInitiallyHasNoTextInTheAlertSpace('firstName');
         itInitiallyHasNoTextInTheAlertSpace('lastName');
         itInitiallyHasNoTextInTheAlertSpace('phoneNumber')
+
+        it('does not submit the form when there are validation erros', async () => {
+            render(<CustomerForm original={blankCustomer} />);
+            await clickAndWait(submitButton());
+            expect(global.fetch).not.toBeCalled();
+        });
+
+        it('renders validation errors after submission fails', async() => {
+            render(<CustomerForm original={blankCustomer} />);
+            await clickAndWait(submitButton());
+            expect(textOf(elements('[role=alert]'))).not.toEqual("");
+        });
+
+
     });
 });
