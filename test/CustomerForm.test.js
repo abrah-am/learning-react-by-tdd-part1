@@ -251,6 +251,15 @@ describe('CustomerForm', () => {
             expect(textOf(elements('[role=alert]'))).not.toEqual("");
         });
 
+        it('renders field validation errors from server', async () => {
+            const errors = {
+                phoneNumber: 'Phone number already exists in the system'
+            }
+            global.fetch.mockResolvedValue(fetchResponseError(422, { errors }));
+            render(<CustomerForm original={validCustomer} />);
+            await clickAndWait(submitButton());
+            expect(errorFor('phoneNumber')).toContainText(errors.phoneNumber);
+        })
 
     });
 });
