@@ -7,6 +7,7 @@ import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
 import { blankCustomer, validCustomer } from "./builders/customer";
+import { act } from "react-dom/test-utils";
 
 
 describe('CustomerForm', () => {
@@ -260,6 +261,29 @@ describe('CustomerForm', () => {
             await clickAndWait(submitButton());
             expect(errorFor('phoneNumber')).toContainText(errors.phoneNumber);
         })
-
     });
+
+    describe('submitting indicator', () => {
+        it('displays when form is submitting', async () => {
+            render(<CustomerForm original={validCustomer} onSave={() => {}} />);
+            click(submitButton());
+            await act(async () => {
+                expect(element('span.submittingIndicator')).not.toBeNull();
+            });
+        });
+
+        it('initially does not display the submitting indicator', () => {
+            render(<CustomerForm original={validCustomer} />);
+            expect(element('.submittingIndicator')).toBeNull();
+        });
+
+        it('hides after submission', async () => {
+            render(
+                <CustomerForm original={validCustomer} onSave={() => {}} />
+            );
+            await clickAndWait(submitButton());
+            expect(element('.submittingIndicator')).toBeNull();
+
+        })
+    })
 });

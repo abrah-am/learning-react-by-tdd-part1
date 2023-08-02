@@ -8,6 +8,8 @@ export const CustomerForm = ({ original, onSave }) => {
 
     const [ customer, setCustomer ] = useState(original); 
 
+    const [submitting, setSubmitting] = useState(false);
+
     const [validationErrors, setValidationErrors] = useState({});
 
     const handleChange = ({ target }) => setCustomer((customer) => ({
@@ -51,6 +53,7 @@ export const CustomerForm = ({ original, onSave }) => {
         event.preventDefault();
         const validationResult = validateMany(validators, customer);
         if (!anyErrors(validationResult)) {
+            setSubmitting(true);
             const result = await global.fetch('/customers', { 
                 method: "POST",
                 credentials: 'same-origin',
@@ -59,6 +62,7 @@ export const CustomerForm = ({ original, onSave }) => {
                 },
                 body: JSON.stringify(customer),
             });
+            setSubmitting(false)
             if (result.ok) {
                 setError(false);
                 const customerWithId = await result.json();
@@ -118,6 +122,10 @@ export const CustomerForm = ({ original, onSave }) => {
                 type="submit" 
                 value="Add" 
             />
+            {
+                submitting ? (<span className="submittingIndicator" />) : null
+            }
+            
         </form>
     )
 };
