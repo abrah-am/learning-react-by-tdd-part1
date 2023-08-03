@@ -138,10 +138,6 @@ describe('CustomerForm', () => {
 
     });
 
-    it('renders a submit button', () => {
-        render(<CustomerForm original={blankCustomer} />);
-        expect(submitButton()).not.toBeNull();
-    });
 
     it('prevents the default action when sumitting the form', async () => {
         render(<CustomerForm original={validCustomer} onSave={() => {}} />);
@@ -240,6 +236,47 @@ describe('CustomerForm', () => {
         itInitiallyHasNoTextInTheAlertSpace('lastName');
         itInitiallyHasNoTextInTheAlertSpace('phoneNumber')
 
+        const itClearsFieldError = (fieldName, fieldValue) => {
+            it(`clears ${fieldName} error when user corrects it`, async () => {
+                render(<CustomerForm original={validCustomer} />);
+                withFocus(field(fieldName), () => 
+                    change(field(fieldName), "")
+                );
+                withFocus(field(fieldName), () => 
+                    change(field(fieldName), fieldValue)
+                );
+                expect(
+                    errorFor(fieldName).textContent
+                ).toEqual('');
+            });
+        }
+
+        itClearsFieldError('firstName', 'name');
+        itClearsFieldError('lastName', 'name');
+        itClearsFieldError('phoneNumber', '1234567890');
+
+        const itDoesNotInvalidateFieldOnKeypress = (
+            fieldName,
+            fieldValue
+          ) => {
+            it(`does not invalidate ${fieldName} field on keypress`, async () => {
+              render(
+                <CustomerForm original={validCustomer} />
+              );
+      
+              change(field(fieldName), fieldValue);
+      
+              expect(
+                errorFor(fieldName).textContent
+              ).toEqual("");
+            });
+        };
+
+        itDoesNotInvalidateFieldOnKeypress('firstName', '');
+        itDoesNotInvalidateFieldOnKeypress('lastName', '');
+        itDoesNotInvalidateFieldOnKeypress('phoneNumber', '');
+      
+
         it('does not submit the form when there are validation erros', async () => {
             render(<CustomerForm original={blankCustomer} />);
             await clickAndWait(submitButton());
@@ -286,4 +323,24 @@ describe('CustomerForm', () => {
 
         })
     })
+
+    describe('submit button', () => {        
+        it('renders a submit button', () => {
+            render(<CustomerForm original={blankCustomer} />);
+            expect(submitButton()).not.toBeNull();
+        });
+
+        it('disables the submit button when submitting', async () => {
+            render(<CustomerForm original={validCustomer} onSave={() => {}} />);
+            click(submitButton());
+            await act(async () => {
+                expect(submitButton().disabled).toBeTruthy();
+            });
+        });
+
+        it('initially does not disable submit button', () => {
+            render(<CustomerForm original={blankCustomer} />);
+            expect(submitButton().disabled).toBeFalsy();
+        });
+    });
 });

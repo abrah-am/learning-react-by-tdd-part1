@@ -12,10 +12,15 @@ export const CustomerForm = ({ original, onSave }) => {
 
     const [validationErrors, setValidationErrors] = useState({});
 
-    const handleChange = ({ target }) => setCustomer((customer) => ({
-        ...customer,
-        [target.name]: target.value
-    }));
+    const handleChange = ({ target }) => {
+        setCustomer((customer) => ({
+            ...customer,
+            [target.name]: target.value
+        }));
+        if(hasError(validationErrors, target.name)) {
+            validateSingleField(target.name, target.value);
+        }
+    };
 
     const validators = {
         firstName: required('First name is required'),
@@ -48,37 +53,52 @@ export const CustomerForm = ({ original, onSave }) => {
         })
     };
 
+    const validateSingleField = (fieldName, fieldValue) => {
+        const result = validateMany(validators, {
+            [fieldName]: fieldValue
+        });
+        setValidationErrors({
+            ...validationErrors,
+            ...result   
+        });
+    }
+
+    const doSave = async () => {
+        setSubmitting(true);
+        const result = await global.fetch('/customers', { 
+            method: "POST",
+            credentials: 'same-origin',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(customer),
+        });
+        setSubmitting(false)
+        if (result.ok) {
+            setError(false);
+            const customerWithId = await result.json();
+            onSave(customerWithId);
+        } else if (result.status === 422) {
+            const response = await result.json();
+            setValidationErrors(response.errors)
+        } else {
+            setError(true);
+        }
+
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const validationResult = validateMany(validators, customer);
         if (!anyErrors(validationResult)) {
-            setSubmitting(true);
-            const result = await global.fetch('/customers', { 
-                method: "POST",
-                credentials: 'same-origin',
-                headers: { 
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(customer),
-            });
-            setSubmitting(false)
-            if (result.ok) {
-                setError(false);
-                const customerWithId = await result.json();
-                onSave(customerWithId);
-            } else if (result.status === 422) {
-                const response = await result.json();
-                setValidationErrors(response.errors)
-            } else {
-                setError(true);
-            }
+            await doSave();
         }
         else {
-            // setValidationErrors(validationResult);
+            setValidationErrors(validationResult);
         }
     };
 
+    
     return (
         <form onSubmit={handleSubmit}>
             <Error hasError={error} />
@@ -121,6 +141,7 @@ export const CustomerForm = ({ original, onSave }) => {
             <input 
                 type="submit" 
                 value="Add" 
+                disabled={submitting}
             />
             {
                 submitting ? (<span className="submittingIndicator" />) : null
