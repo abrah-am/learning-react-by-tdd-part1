@@ -2,7 +2,7 @@ import React from "react";
 import { change, click, clickAndWait, element, elements, field, form, initializeReactContainer, labelFor, render, submitButton } from "./reactTestExtensions";
 import { AppointmentForm } from "../src/AppointmentForm";
 import { today, todayAt, tomorrowAt } from "./builders/time";
-import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
+import { fetchResponseError, fetchResponseOk } from "./builders/fetch";
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { blankAppointment } from "./builders/appointment";
 
@@ -12,7 +12,7 @@ describe('AppointmentForm', () => {
 
     beforeEach(() => {
         initializeReactContainer();
-        jest.spyOn(global, 'fetch').mockResolvedValue(fetchResponseOK({}));
+        jest.spyOn(global, 'fetch').mockResolvedValue(fetchResponseOk({}));
     });
 
     const services = ['Haircut', 'Blow-dry'];
@@ -70,7 +70,7 @@ describe('AppointmentForm', () => {
     });
 
     it('notifies onSave when form is submitted', async () => {
-        global.fetch.mockResolvedValue(fetchResponseOK({}));
+        global.fetch.mockResolvedValue(fetchResponseOk({}));
         const saveSpy = jest.fn();
         render(<AppointmentForm {...testProps} onSave={saveSpy} />);
         await clickAndWait(submitButton());
@@ -104,7 +104,7 @@ describe('AppointmentForm', () => {
 
     it('clears error message when fetch call succeeds', async() => {
         global.fetch.mockResolvedValueOnce(fetchResponseError());
-        global.fetch.mockResolvedValueOnce(fetchResponseOK());
+        global.fetch.mockResolvedValueOnce(fetchResponseOk());
         render(<AppointmentForm {...testProps} />);
         await clickAndWait(submitButton());
         await clickAndWait(submitButton());

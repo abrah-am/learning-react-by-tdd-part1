@@ -5,7 +5,7 @@ import {
     labelFor, clickAndWait, submitAndAwait, withFocus, textOf, elements  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
-import { fetchResponseError, fetchResponseOK } from "./builders/fetch";
+import { fetchResponseError, fetchResponseOk } from "./builders/fetch";
 import { blankCustomer, validCustomer } from "./builders/customer";
 import { act } from "react-dom/test-utils";
 
@@ -18,7 +18,7 @@ describe('CustomerForm', () => {
         initializeReactContainer();
         fetchSpy = jest
             .spyOn(global, 'fetch')
-            .mockResolvedValue(fetchResponseOK({}));
+            .mockResolvedValue(fetchResponseOk({}));
     });
 
     it('renders a form', () => {
@@ -131,7 +131,7 @@ describe('CustomerForm', () => {
         it('clears error message when fetch call succeeds', async () => {            
             render(<CustomerForm original={validCustomer} onSave={() => {}}/>);
             await clickAndWait(submitButton());
-            global.fetch.mockResolvedValueOnce(fetchResponseOK());
+            global.fetch.mockResolvedValueOnce(fetchResponseOk());
             await clickAndWait(submitButton());
             expect(element('[role=alert]')).not.toContainText('error occurred');
         });
@@ -160,7 +160,7 @@ describe('CustomerForm', () => {
     });
 
     it('notifies onSave when form is submitted', async () => {
-        global.fetch.mockResolvedValue(fetchResponseOK(validCustomer));
+        global.fetch.mockResolvedValue(fetchResponseOk(validCustomer));
         const saveSpy = jest.fn();
         render(<CustomerForm original={validCustomer} onSave={saveSpy} />);
         await clickAndWait(submitButton());

@@ -16,12 +16,16 @@ const blankCustomer = {
 };
 export const App = () => {
     const [view, setView] = useState("dayView");
+
     const transitionToAddCustomer = useCallback(()=> setView("addCustomer"), []);
+    
     const transitionToDayView = useCallback(() => setView("dayView"), [])
+    
     const transitionToAddAppointment = useCallback((customer) => { 
         setCustomer(customer);
         setView("addAppointment");
     }, []);
+    
     const [customer, setCustomer] = useState();
 
     switch (view) {

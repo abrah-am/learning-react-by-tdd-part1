@@ -12,7 +12,7 @@ export const initializeReactContainer = () => {
 
 export const render = (component) => act(() => rootContainer.render(component));
 
-export const renderAndAwait = (component) => act(async () => rootContainer.render(component));
+export const renderAndWait = (component) => act(async () => rootContainer.render(component));
 
 export const click = (element) => act(() => element.click());
 
