@@ -1,4 +1,4 @@
-export const fetchResponseOk = (body) => Promise.resolve({
+export const fetchResponseOk = (body) => ({
     ok: true,
     json: () => Promise.resolve(body)
 });

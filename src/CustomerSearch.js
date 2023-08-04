@@ -1,5 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
+
+const SearchButtons = (
+    { 
+        handleNext,
+        handlePrevious,
+    }
+) => (
+    <menu>
+        <li>
+            <button onClick={handlePrevious}>Previous</button>
+        </li>
+        <li>
+            <button onClick={handleNext}>Next</button>
+        </li>
+    </menu>
+);
 
 const CustomerRow = ({ customer }) => (
     <tr>
@@ -9,12 +25,24 @@ const CustomerRow = ({ customer }) => (
     </tr>
 );
 
-export const CustomerSearch = () => {
+export const CustomerSearch = () => {    
+
     const [customers, setCustomers] = useState([]);
+    const [queryStrings, setQueryStrings] = useState([]);
+
+    const handleNext = useCallback(() => {
+        const after = customers[customers.length - 1].id;
+        const newQueryString = `?after=${after}`;
+        setQueryStrings([...queryStrings, newQueryString]);
+    }, [customers, queryStrings]);
+
+    const handlePrevious = useCallback(() => 
+        setQueryStrings(queryStrings.slice(0, -1)), [queryStrings]);
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await global.fetch('/customers', {
+            const queryString = queryStrings[queryStrings.length - 1] || '';
+            const result = await global.fetch(`/customers${queryString}`, {
                 method: 'GET',
                 credentials: 'same-origin',
                 headers: {
@@ -24,25 +52,28 @@ export const CustomerSearch = () => {
             setCustomers(await result.json());
         }
         fetchData();    
-    }, []);
+    }, [queryStrings]);
 
     return (
-        <table>
-            <thead>
-                <tr>
-                    <th>First name</th>
-                    <th>Last name</th>
-                    <th>Phone number</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    customers.map (customer => (
-                        <CustomerRow customer={customer} key={customer.id} />
-                    ))
-                }
-            </tbody>
-        </table>
+        <>
+            <SearchButtons handleNext={handleNext} handlePrevious={handlePrevious} />
+            <table>
+                <thead>
+                    <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Phone number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        customers.map (customer => (
+                            <CustomerRow customer={customer} key={customer.id} />
+                        ))
+                    }
+                </tbody>
+            </table>
+        </>
     )
 }
