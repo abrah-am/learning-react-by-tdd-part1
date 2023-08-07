@@ -75,3 +75,6 @@ export const buttonWithLabel = (label) =>
     elements('button').find(
         ({ textContent }) => textContent === label
     );
+
+export const changeAndWait = async (target, value) => 
+    act(async () => change(target, value));
