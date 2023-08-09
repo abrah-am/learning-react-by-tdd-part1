@@ -16,6 +16,12 @@ jest.mock('../src/AppointmentsDayViewLoader', () => ({
     )),
 }))
 
+jest.mock("../src/CustomerSearch", () => ({
+    CustomerSearch: jest.fn(() => (
+      <div id="CustomerSearch" />
+    )),
+  }));
+
 jest.mock('../src/CustomerForm', () => ({
     CustomerForm: jest.fn(() => (
         <div id='CustomerForm' />
@@ -121,5 +127,30 @@ describe('App', () => {
         saveCustomer();
         saveAppointment();
         expect(AppointmentsDayViewLoader).toBeRendered();
+    });
+
+    describe("search customers", () => {
+        it("has a button to search customers", () => {
+          render(<App />);
+          const secondButton = element(
+            "menu > li:nth-of-type(2) > button"
+          );
+          expect(secondButton).toContainText(
+            "Search customers"
+          );
+        });
+    
+        const navigateToSearchCustomers = () =>
+          click(
+            element("menu > li:nth-of-type(2) > button")
+          );
+    
+        it("displays the CustomerSearch when button is clicked", async () => {
+          render(<App />);
+          navigateToSearchCustomers();
+          expect(
+            element("#CustomerSearch")
+          ).not.toBeNull();
+        });
     });
 });
