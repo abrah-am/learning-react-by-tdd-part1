@@ -15,6 +15,8 @@ const blankCustomer = {
     phoneNumber: '',
 };
 export const App = () => {
+    const [customer, setCustomer] = useState();
+
     const [view, setView] = useState("dayView");
 
     const transitionToAddCustomer = useCallback(()=> setView("addCustomer"), []);
@@ -25,24 +27,41 @@ export const App = () => {
         () => setView("searchCustomers"), []
       );
     
-
     const transitionToAddAppointment = useCallback((customer) => { 
         setCustomer(customer);
         setView("addAppointment");
     }, []);
-    
-    const [customer, setCustomer] = useState();
+
+    const searchActions = (customer) => (
+        <button 
+            onClick={() => 
+                transitionToAddAppointment(customer)
+            }
+        >
+            Create appointment
+        </button>
+    );
 
     switch (view) {
         case "addCustomer":
             return (
-                <CustomerForm original={blankCustomer} onSave={transitionToAddAppointment} />
+                <CustomerForm 
+                    original={blankCustomer} 
+                    onSave={transitionToAddAppointment} 
+                />
             );
         case "searchCustomers":
-            return <CustomerSearch />;            
+            return (
+                <CustomerSearch 
+                    renderCustomerActions={searchActions}
+                />
+            );       
         case "addAppointment":
             return (
-                <AppointmentFormLoader original={{...blankAppointment, customer: customer.id }} onSave={transitionToDayView} />
+                <AppointmentFormLoader 
+                    original={{...blankAppointment, customer: customer.id }} 
+                    onSave={transitionToDayView} 
+                />
             );
         default:
             return (

@@ -17,15 +17,21 @@ const SearchButtons = (
     </menu>
 );
 
-const CustomerRow = ({ customer }) => (
+const CustomerRow = ({ 
+    customer,
+    renderCustomerActions
+}) => (
     <tr>
         <td>{customer.firstName}</td>
         <td>{customer.lastName}</td>
         <td>{customer.phoneNumber}</td>
+        <td>{renderCustomerActions(customer)}</td>
     </tr>
 );
 
-export const CustomerSearch = () => {    
+export const CustomerSearch = (
+    { renderCustomerActions }
+) => {    
 
     const [customers, setCustomers] = useState([]);
     
@@ -93,7 +99,11 @@ export const CustomerSearch = () => {
                 <tbody>
                     {
                         customers.map (customer => (
-                            <CustomerRow customer={customer} key={customer.id} />
+                            <CustomerRow 
+                                customer={customer} 
+                                key={customer.id} 
+                                renderCustomerActions={renderCustomerActions}
+                            />
                         ))
                     }
                 </tbody>
@@ -101,3 +111,7 @@ export const CustomerSearch = () => {
         </>
     )
 }
+
+CustomerSearch.defaultProps = {
+    renderCustomerActions: () => {}
+};
