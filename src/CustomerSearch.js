@@ -2,15 +2,56 @@ import React, { useCallback, useEffect, useState } from "react";
 import { objectToQueryString } from "./objectToQueryString";
 
 
+const ToggleButton = ({
+    onClick,
+    toggled,
+    children,
+}) => (
+    <button 
+        onClick={onClick}
+        className={toggled ? 'toggled' : ''}
+    >
+        {children}
+    </button>
+);
+
 const SearchButtons = (
     { 
-        handleNext,
+        handleNext, 
         handlePrevious,
         hasPrevious,
         hasNext,
+        limit,
+        handleLimit,
     }
 ) => (
     <menu>
+        <li>
+            <ToggleButton
+                onClick={() => handleLimit(10)}
+                toggled={true}
+            >
+                10
+            </ToggleButton>
+            <ToggleButton
+                onClick={() => handleLimit(20)}
+                toggled={false}
+            >
+                20
+            </ToggleButton>
+            <ToggleButton
+                onClick={() => handleLimit(50)}
+                toggled={false}
+            >
+                50
+            </ToggleButton>
+            <ToggleButton
+                onClick={() => handleLimit(100)}
+                toggled={false}
+            >
+                100
+            </ToggleButton>
+        </li>
         <li>
             <button 
                 onClick={handlePrevious}
@@ -52,6 +93,8 @@ export const CustomerSearch = (
 
     const [searchTerm, setSearchTerm] = useState('');
 
+    const [limit, setLimit] = useState(10);
+
     const handleNext = useCallback(() => {
         const currentLastRowId = customers[customers.length - 1].id;
         setLastRowIds([...lastRowIds, currentLastRowId]);
@@ -67,7 +110,8 @@ export const CustomerSearch = (
             const after = lastRowIds[lastRowIds.length - 1];
             const queryString = objectToQueryString({
                 after,
-                searchTerm
+                searchTerm,
+                limit: limit === 10 ? '' : limit,
             });
             const result = await global.fetch(`/customers${queryString}`, {
                 method: 'GET',
@@ -79,10 +123,10 @@ export const CustomerSearch = (
             setCustomers(await result.json());
         }
         fetchData();    
-    }, [lastRowIds, searchTerm]);
+    }, [lastRowIds, searchTerm, limit]);
 
     const hasPrevious = lastRowIds.length > 0;
-    const hasNext = !(customers.length < 10);
+    const hasNext = customers.length === limit;
 
     return (
         <>
@@ -96,6 +140,7 @@ export const CustomerSearch = (
                 handlePrevious={handlePrevious} 
                 hasPrevious={hasPrevious}
                 hasNext={hasNext}
+                handleLimit={setLimit}
             />
             <table>
                 <thead>
