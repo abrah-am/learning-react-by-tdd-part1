@@ -5,14 +5,26 @@ const SearchButtons = (
     { 
         handleNext,
         handlePrevious,
+        hasPrevious,
+        hasNext,
     }
 ) => (
     <menu>
         <li>
-            <button onClick={handlePrevious}>Previous</button>
+            <button 
+                onClick={handlePrevious}
+                disabled={!hasPrevious}
+            >
+                Previous
+            </button>
         </li>
         <li>
-            <button onClick={handleNext}>Next</button>
+            <button 
+                onClick={handleNext}
+                disabled={!hasNext}
+            >
+                Next
+            </button>
         </li>
     </menu>
 );
@@ -79,6 +91,9 @@ export const CustomerSearch = (
         fetchData();    
     }, [lastRowIds, searchTerm]);
 
+    const hasPrevious = lastRowIds.length > 0;
+    const hasNext = !(customers.length < 10);
+
     return (
         <>
             <input 
@@ -86,7 +101,12 @@ export const CustomerSearch = (
                 value={searchTerm}
                 onChange={handleSearchTextChanged}
             />
-            <SearchButtons handleNext={handleNext} handlePrevious={handlePrevious} />
+            <SearchButtons 
+                handleNext={handleNext} 
+                handlePrevious={handlePrevious} 
+                hasPrevious={hasPrevious}
+                hasNext={hasNext}
+            />
             <table>
                 <thead>
                     <tr>
