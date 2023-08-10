@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { objectToQueryString } from "./objectToQueryString";
 
 
 const SearchButtons = (
@@ -61,24 +62,13 @@ export const CustomerSearch = (
     
     const handleSearchTextChanged = ({target: { value }}) => setSearchTerm(value);
 
-    const searchParams = (after, searchTerm) => {
-        let pairs = [];
-        if (after) {
-            pairs.push(`after=${after}`);
-        }
-        if (searchTerm) {
-            pairs.push(`searchTerm=${searchTerm}`);
-        }
-        if(pairs.length > 0) {
-            return `?${pairs.join('&')}`;
-        }
-        return '';
-    }
-
     useEffect(() => {
         const fetchData = async () => {
             const after = lastRowIds[lastRowIds.length - 1];
-            const queryString = searchParams(after, searchTerm);
+            const queryString = objectToQueryString({
+                after,
+                searchTerm
+            });
             const result = await global.fetch(`/customers${queryString}`, {
                 method: 'GET',
                 credentials: 'same-origin',
