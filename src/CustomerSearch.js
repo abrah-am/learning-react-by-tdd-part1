@@ -29,25 +29,25 @@ const SearchButtons = (
         <li>
             <ToggleButton
                 onClick={() => handleLimit(10)}
-                toggled={true}
+                toggled={limit === 10}
             >
                 10
             </ToggleButton>
             <ToggleButton
                 onClick={() => handleLimit(20)}
-                toggled={false}
+                toggled={limit === 20}
             >
                 20
             </ToggleButton>
             <ToggleButton
                 onClick={() => handleLimit(50)}
-                toggled={false}
+                toggled={limit === 50}
             >
                 50
             </ToggleButton>
             <ToggleButton
                 onClick={() => handleLimit(100)}
-                toggled={false}
+                toggled={limit === 100}
             >
                 100
             </ToggleButton>
@@ -141,6 +141,7 @@ export const CustomerSearch = (
                 hasPrevious={hasPrevious}
                 hasNext={hasNext}
                 handleLimit={setLimit}
+                limit={limit}
             />
             <table>
                 <thead>

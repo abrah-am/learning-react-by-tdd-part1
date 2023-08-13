@@ -43,13 +43,15 @@
     "@babel/runtime": "^7.18.6",
     "graphql": "^16.5.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "6.3.0"
   },
   "prettier": {
     "printWidth": 54
   },
   "jest": {
     "testEnvironment": "jsdom",
+    "clearMocks": true,
     "restoreMocks": true,
     "globals": {
       "IS_REACT_ACT_ENVIRONMENT": true

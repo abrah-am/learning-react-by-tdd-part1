@@ -1,16 +1,20 @@
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { act, mockComponent } from "react-dom/test-utils";
+import { act } from "react-dom/test-utils";
+import { createMemoryHistory } from "history";
+import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
 
+export let history;
 export let container; 
-let rootContainer;
+let reactRoot;
 
 export const initializeReactContainer = () => {
     container = document.createElement("div");
     document.body.replaceChildren(container);
-    rootContainer = ReactDOM.createRoot(container);
+    reactRoot = ReactDOM.createRoot(container);
 }
 
-export const render = (component) => act(() => rootContainer.render(component));
+export const render = (component) => act(() => reactRoot.render(component));
 
 export const renderAdditional = (component) => {
     const additionalContainer = document.createElement('div');
@@ -18,7 +22,20 @@ export const renderAdditional = (component) => {
     return additionalContainer;
 }
 
-export const renderAndWait = (component) => act(async () => rootContainer.render(component));
+export const renderWithRouter = (component, { location } = { location: '' }) => {
+    history = createMemoryHistory ({
+        initialEntries: [location]
+    });
+    act(() => 
+        reactRoot.render(
+            <HistoryRouter history={history}>
+                { component }
+            </HistoryRouter>
+        )
+    );
+};
+
+export const renderAndWait = (component) => act(async () => reactRoot.render(component));
 
 export const click = (element) => act(() => element.click());
 
