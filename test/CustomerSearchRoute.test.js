@@ -1,9 +1,9 @@
 import React from "react";
 import { initializeReactContainer, renderWithRouter } from "./reactTestExtensions";
 import { CustomerSearchRoute } from '../src/CustomerSearchRoute'
-import { CustomerSearch } from "../src/CustomerSearch";
+import { CustomerSearch } from "../src/CustomerSearch/CustomerSearch";
 
-jest.mock('../src/CustomerSearch', () => ({
+jest.mock('../src/CustomerSearch/CustomerSearch', () => ({
     CustomerSearch: jest.fn(() => (
         <div id='CustomerSearch' />
     ))

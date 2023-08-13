@@ -101,3 +101,6 @@ export const buttonWithLabel = (label) =>
 
 export const changeAndWait = async (target, value) => 
     act(async () => change(target, value));
+
+export const linkFor = (href) => 
+    elements('a').find(el => el.getAttribute('href') === href)

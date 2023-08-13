@@ -13,7 +13,7 @@ import {
   renderAdditional,
   click,
 } from "./reactTestExtensions";
-import { CustomerSearch } from "../src/CustomerSearch";
+import { CustomerSearch } from "../src/CustomerSearch/CustomerSearch";
 import { fetchResponseOk } from "./builders/fetch";
 import { App } from "../src/App";
 import { AppointmentFormLoader } from "../src/AppointmentFormLoader";

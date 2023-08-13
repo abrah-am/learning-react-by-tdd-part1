@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CustomerSearch } from "./CustomerSearch";
+import { CustomerSearch } from "./CustomerSearch/CustomerSearch";
 
 const convertParams = () => {
   const [params] = useSearchParams();
