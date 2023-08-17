@@ -5,11 +5,6 @@ import { Link, Route, Routes, useNavigate } from "react-router-dom";
 import { AppointmentFormRoute } from "./AppointmentFormRoute";
 import { CustomerSearchRoute } from "./CustomerSearchRoute";
 
-const blankAppointment = {
-    service: '',
-    stylist: '',
-    startAt: null,
-};
 const blankCustomer = {
     firstName: '',
     lastName: '',

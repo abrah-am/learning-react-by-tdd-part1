@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { act } from "react-dom/test-utils";
+import { act, mockComponent } from "react-dom/test-utils";
 import { createMemoryHistory } from "history";
 import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
 
@@ -104,3 +104,9 @@ export const changeAndWait = async (target, value) =>
 
 export const linkFor = (href) => 
     elements('a').find(el => el.getAttribute('href') === href)
+
+export const propsMatching = (mockComponent, matching) => {
+    const [k, v] = Object.entries(matching)[0];
+    const call = mockComponent.mock.calls.find(([props]) => props[k] === v);
+    return call?.[0];
+};

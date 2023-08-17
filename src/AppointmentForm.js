@@ -164,7 +164,11 @@ export const AppointmentForm = ({
         <form onSubmit={handleSubmit}>
             <Error hasError={hasError}/>
             <label htmlFor="service">Service:</label>
-            <select id="service" name="service" value={original.service} onChange={handleSelectBoxChange}>
+            <select 
+                id="service" 
+                name="service" 
+                value={appointment.service} 
+                onChange={handleSelectBoxChange}>
                 <option />
                 {
                     selectableServices.map(s => 
@@ -172,7 +176,11 @@ export const AppointmentForm = ({
                 }
             </select>
             <label htmlFor="stylist">Stylist:</label>
-            <select id="stylist" name="stylist" value={original.stylist} onChange={handleSelectBoxChange}>
+            <select 
+                id="stylist" 
+                name="stylist" 
+                value={appointment.stylist} 
+                onChange={handleSelectBoxChange}>
                 <option />
                 {
                     stylistsForService.map((s) => (
