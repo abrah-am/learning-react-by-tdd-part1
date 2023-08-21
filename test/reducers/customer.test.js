@@ -1,4 +1,5 @@
 import { reducer } from "../../src/reducers/customer";
+import { itMaintainsExistingState, itSetsStatus } from "../reducerGenerators";
 
 describe('customer reducer', () => {
     it('returns a default state for undefined existing state', () => {
@@ -15,17 +16,10 @@ describe('customer reducer', () => {
             type: 'ADD_CUSTOMER_SUBMITTING'
         };
 
-        it('sets status to SUBMITTING', () => {
-            expect(reducer(undefined, action)).toMatchObject({
-                status: 'SUBMITTING'
-            });
-        });
+        itSetsStatus(reducer, action, 'SUBMITTING');
 
-        it('maintains existing state', () => {
-            expect(reducer({ a: 123 }, action)).toMatchObject({
-                a: 123
-            });
-        });
+        itMaintainsExistingState(reducer, action);
+
     });
 
     describe('ADD_CUSTOMER_SUCCESSFUL action', () => {
@@ -35,17 +29,9 @@ describe('customer reducer', () => {
             customer
         }
 
-        it('sets status to SUCCESSFUL', () => {
-            expect(reducer(undefined, action)).toMatchObject({
-                status: 'SUCCESSFUL'
-            });
-        });
+        itSetsStatus(reducer, action, 'SUCCESSFUL');
 
-        it('maintains existing state', () => {
-            expect(reducer({ a: 123 }, action)).toMatchObject({
-                a: 123
-            });
-        });
+        itMaintainsExistingState(reducer, action);
 
         it('sets customer to provided customer', () => {
             expect(reducer(undefined, action)).toMatchObject({
@@ -57,17 +43,9 @@ describe('customer reducer', () => {
     describe('ADD_CUSTOMER_FAILED action', () => {
         const action = { type: 'ADD_CUSTOMER_FAILED' };
 
-        it('sets status to FAILED', () => {
-            expect(reducer(undefined, action)).toMatchObject({
-                status: 'FAILED'
-            });
-        });
+        itSetsStatus(reducer, action, 'FAILED');
 
-        it('maintains existing state', () => {
-            expect(reducer({ a: 123 }, action)).toMatchObject({
-                a: 123
-            });
-        });
+        itMaintainsExistingState(reducer, action);
 
         it('sets error to true', () => {
             expect(reducer(undefined, action)).toMatchObject({
@@ -85,17 +63,9 @@ describe('customer reducer', () => {
             validationErrors
         }
 
-        it('sets status to VALIDATION_FAILED', () => {
-            expect(reducer(undefined, action)).toMatchObject({
-                status: 'VALIDATION_FAILED'
-            });
-        });
+        itSetsStatus(reducer, action, 'VALIDATION_FAILED');
 
-        it('maintains existing state', () => {
-            expect(reducer({ a: 123 }, action)).toMatchObject({
-                a: 123
-            });
-        });
+        itMaintainsExistingState(reducer, action);
 
         it('sets validation errors to provided errors', () => {
             expect(reducer(undefined, action)).toMatchObject({
