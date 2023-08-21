@@ -3,12 +3,17 @@ import ReactDOM from "react-dom/client";
 import { act, mockComponent } from "react-dom/test-utils";
 import { createMemoryHistory } from "history";
 import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
+import { configureStore } from "../src/store";
+import { storeSpy } from "expect-redux";
+import { Provider } from "react-redux";
 
 export let history;
 export let container; 
+export let store;
 let reactRoot;
 
 export const initializeReactContainer = () => {
+    store = configureStore([storeSpy])
     container = document.createElement("div");
     document.body.replaceChildren(container);
     reactRoot = ReactDOM.createRoot(container);
@@ -34,6 +39,16 @@ export const renderWithRouter = (component, { location } = { location: '' }) => 
         )
     );
 };
+
+export const renderWithStore = (component) => act(
+    () => reactRoot.render(
+        <Provider store={store}>
+            {component}
+        </Provider>
+    )
+);
+
+export const dispatchToStore = (action) => act(() => store.dispatch(action));
 
 export const renderAndWait = (component) => act(async () => reactRoot.render(component));
 
