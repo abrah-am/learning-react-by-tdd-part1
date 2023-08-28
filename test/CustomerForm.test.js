@@ -2,7 +2,7 @@ import React from "react";
 import { 
     initializeReactContainer, render, element, 
     form, field, click, submit, submitButton, change, 
-    labelFor, clickAndWait, submitAndAwait, withFocus, textOf, elements, renderWithStore, store  } from "./reactTestExtensions";
+    labelFor, clickAndWait, submitAndAwait, withFocus, textOf, elements, renderWithStore, store, dispatchToStore  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { fetchResponseError, fetchResponseOk } from "./builders/fetch";
@@ -23,38 +23,38 @@ describe('CustomerForm', () => {
     });
 
     it('renders a form', () => {
-        render(<CustomerForm original={blankCustomer}/>);
+        renderWithStore(<CustomerForm original={blankCustomer}/>);
         expect(form()).not.toBeNull();
     });
 
     const itRendersAsATextBox = (fieldName) => 
         it('renders as text box', () => {
-            render(<CustomerForm original={blankCustomer}/>);
+            renderWithStore(<CustomerForm original={blankCustomer}/>);
             expect(field(fieldName)).toBeInputFieldOfType('text');
     });    
         
     const itIncludesTheExistingValue = (fieldName, existing) => 
         it('includes the existing value', () => {
             const customer = { [fieldName]: existing };
-            render(<CustomerForm original={customer} />);
+            renderWithStore(<CustomerForm original={customer} />);
             expect(field(fieldName).value).toEqual(existing);
     });
 
     const itRendersLabel = (fieldName, labelText) => {
         it('renders a label for the text box', () => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             expect(labelFor(fieldName)).not.toBeNull();
         }); 
 
         it('renders a label text as the label content', () => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             expect(labelFor(fieldName)).toContainText(labelText);
         });
     
     };
 
     const itAssignesIdMatchingLabelId = (fieldName) => it('assigns an id that matches the label id', () => {
-        render(<CustomerForm original={blankCustomer} />);
+        renderWithStore(<CustomerForm original={blankCustomer} />);
         expect(field(fieldName).id).toEqual(fieldName);
 
     });
@@ -64,7 +64,7 @@ describe('CustomerForm', () => {
             ...validCustomer,
             [fieldName]: value 
         };
-        render(
+        renderWithStore(
             <CustomerForm original={customer} onSave={() => {}} />
         );
         await clickAndWait(submitButton());
@@ -72,7 +72,7 @@ describe('CustomerForm', () => {
     });
 
     const itSubmitsNewValue = (fieldName, value) => it('saves new value when submitted', async () => {
-        render(
+        renderWithStore(
             <CustomerForm original={validCustomer} onSave={() => {}} />
         );
         change(field(fieldName), value);
@@ -118,19 +118,24 @@ describe('CustomerForm', () => {
 
         it('does not notify onSave', async () => {
             const saveSpy = jest.fn();
-            render(<CustomerForm original={validCustomer} onSave={saveSpy.fn} />);
+            renderWithStore(<CustomerForm original={validCustomer} onSave={saveSpy.fn} />);
             await clickAndWait(submitButton());
             expect(saveSpy).not.toBeCalled();
         });
     
-        it('renders error message', async () => {
-            render(<CustomerForm original={validCustomer} />);
+        it('renders error message when error prop is true', async () => {
+            renderWithStore(
+                <CustomerForm original={validCustomer} />
+            );
             await clickAndWait(submitButton());
+            dispatchToStore(
+                { type: 'ADD_CUSTOMER_FAILED' }
+            );
             expect(element('[role=alert]')).toContainText('error occurred');
         });
 
         it('clears error message when fetch call succeeds', async () => {            
-            render(<CustomerForm original={validCustomer} onSave={() => {}}/>);
+            renderWithStore(<CustomerForm original={validCustomer} onSave={() => {}}/>);
             await clickAndWait(submitButton());
             global.fetch.mockResolvedValueOnce(fetchResponseOk());
             await clickAndWait(submitButton());
@@ -141,19 +146,19 @@ describe('CustomerForm', () => {
 
 
     it('prevents the default action when sumitting the form', async () => {
-        render(<CustomerForm original={validCustomer} onSave={() => {}} />);
+        renderWithStore(<CustomerForm original={validCustomer} onSave={() => {}} />);
         const event = await submitAndAwait(form());
         expect(event.defaultPrevented).toBe(true);
     });
 
     it('sends request POST /customers when submitting the form', async () => {
-        render(<CustomerForm original={validCustomer} onSave={() => {}} />);
+        renderWithStore(<CustomerForm original={validCustomer} onSave={() => {}} />);
         await clickAndWait(submitButton());
         expect(global.fetch).toBeCalledWith('/customers', expect.objectContaining(
             { method: "POST" }));
     });
 
-    it.only('dispatches ADD_CUSTOMER_REQUEST when submitting data', async () => {
+    it('dispatches ADD_CUSTOMER_REQUEST when submitting data', async () => {
         renderWithStore(
             <CustomerForm original={validCustomer}  onSave={() => {}} />
         );
@@ -167,7 +172,7 @@ describe('CustomerForm', () => {
     });
 
     it('calls fetch with the right configuration', async () => {
-        render(<CustomerForm original={validCustomer} onSave={() => {}} />);
+        renderWithStore(<CustomerForm original={validCustomer} onSave={() => {}} />);
         await clickAndWait(submitButton());
         expect(global.fetch).toBeCalledWith(expect.anything(), expect.objectContaining(
             { credentials: "same-origin", headers: { "Content-Type": "application/json" } }));
@@ -176,18 +181,18 @@ describe('CustomerForm', () => {
     it('notifies onSave when form is submitted', async () => {
         global.fetch.mockResolvedValue(fetchResponseOk(validCustomer));
         const saveSpy = jest.fn();
-        render(<CustomerForm original={validCustomer} onSave={saveSpy} />);
+        renderWithStore(<CustomerForm original={validCustomer} onSave={saveSpy} />);
         await clickAndWait(submitButton());
         expect(saveSpy).toBeCalledWith(validCustomer);
     });
 
     it('renders an alert space', async () => {
-        render(<CustomerForm original={blankCustomer} />);
+        renderWithStore(<CustomerForm original={blankCustomer} />);
         expect(element('[role=alert]')).not.toBeNull();
     });
 
     it('initially has no text in the alert space', async () => {
-        render(<CustomerForm original={blankCustomer} />);
+        renderWithStore(<CustomerForm original={blankCustomer} />);
         expect(element('[role=alert]')).not.toContainText('error occurred')
     });
 
@@ -197,13 +202,13 @@ describe('CustomerForm', () => {
 
         const itRendersAlertForFieldValidation = (fieldName) => {
             it(`renders an alert space for ${fieldName} validation errors`, () => {
-                render(<CustomerForm original={blankCustomer} />);
+                renderWithStore(<CustomerForm original={blankCustomer} />);
                 expect(errorFor(fieldName)).not.toBeNull();
             });
         };
         const itSetsAlertAsAccessibleDescriptionForField = (fieldName) => {
             it(`sets alert as accessible description for the  ${fieldName} field`, async () => {
-                render(<CustomerForm original={blankCustomer} />);
+                renderWithStore(<CustomerForm original={blankCustomer} />);
                 expect(field(fieldName).getAttribute('aria-describedby')).toEqual(`${fieldName}Error`);
             });
         };
@@ -213,20 +218,20 @@ describe('CustomerForm', () => {
             description
         ) => {
             it(`displays error after blur when ${fieldName} field is ${value}`, () => {
-                render(<CustomerForm original={blankCustomer} />);
+                renderWithStore(<CustomerForm original={blankCustomer} />);
                 withFocus(field(fieldName), () => change(field(fieldName), value));
                 expect(errorFor(fieldName)).toContainText(description);
             });
         };
         const itInitiallyHasNoTextInTheAlertSpace = (fieldName) => {
             it(`initially has not text in the ${fieldName} field alert space`, async () => {
-                render(<CustomerForm original={blankCustomer} />);
+                renderWithStore(<CustomerForm original={blankCustomer} />);
                 expect(errorFor(fieldName).textContent).toEqual('');
             });
         };
 
         it('accepts standard phone number characters when validating', () => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             withFocus(
                 field('phoneNumber'), () => change(field('phoneNumber'), '0123456789+()-')
             );
@@ -252,7 +257,7 @@ describe('CustomerForm', () => {
 
         const itClearsFieldError = (fieldName, fieldValue) => {
             it(`clears ${fieldName} error when user corrects it`, async () => {
-                render(<CustomerForm original={validCustomer} />);
+                renderWithStore(<CustomerForm original={validCustomer} />);
                 withFocus(field(fieldName), () => 
                     change(field(fieldName), "")
                 );
@@ -274,7 +279,7 @@ describe('CustomerForm', () => {
             fieldValue
           ) => {
             it(`does not invalidate ${fieldName} field on keypress`, async () => {
-              render(
+              renderWithStore(
                 <CustomerForm original={validCustomer} />
               );
       
@@ -292,13 +297,15 @@ describe('CustomerForm', () => {
       
 
         it('does not submit the form when there are validation erros', async () => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             await clickAndWait(submitButton());
-            expect(global.fetch).not.toBeCalled();
+            return expectRedux(store)
+                .toNotDispatchAnAction(100)
+                .ofType('ADD_CUSTOMER_REQUEST')
         });
 
         it('renders validation errors after submission fails', async() => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             await clickAndWait(submitButton());
             expect(textOf(elements('[role=alert]'))).not.toEqual("");
         });
@@ -307,32 +314,40 @@ describe('CustomerForm', () => {
             const errors = {
                 phoneNumber: 'Phone number already exists in the system'
             }
-            global.fetch.mockResolvedValue(fetchResponseError(422, { errors }));
-            render(<CustomerForm original={validCustomer} />);
-            await clickAndWait(submitButton());
+            renderWithStore(<CustomerForm original={validCustomer} />);
+            dispatchToStore(
+                {
+                    type: 'ADD_CUSTOMER_VALIDATION_FAILED',
+                    validationErrors: errors
+                }
+            );
             expect(errorFor('phoneNumber')).toContainText(errors.phoneNumber);
         })
     });
 
     describe('submitting indicator', () => {
-        it('displays when form is submitting', async () => {
-            render(<CustomerForm original={validCustomer} onSave={() => {}} />);
-            click(submitButton());
-            await act(async () => {
-                expect(element('span.submittingIndicator')).not.toBeNull();
-            });
+        it('displays indicator when form is submitting', async () => {
+            renderWithStore(
+                <CustomerForm original={validCustomer} onSave={() => {}} />
+            );
+            dispatchToStore(
+                { type: 'ADD_CUSTOMER_SUBMITTING' }
+            );
+            expect(element('span.submittingIndicator')).not.toBeNull();
         });
 
         it('initially does not display the submitting indicator', () => {
-            render(<CustomerForm original={validCustomer} />);
+            renderWithStore(<CustomerForm original={validCustomer} />);
             expect(element('.submittingIndicator')).toBeNull();
         });
 
-        it('hides after submission', async () => {
-            render(
+        it('hides indicator when form has submitted', async () => {
+            renderWithStore(
                 <CustomerForm original={validCustomer} onSave={() => {}} />
             );
-            await clickAndWait(submitButton());
+            dispatchToStore(
+                { type: 'ADD_CUSTOMER_SUCCESSFUL' }
+            );
             expect(element('.submittingIndicator')).toBeNull();
 
         })
@@ -340,20 +355,22 @@ describe('CustomerForm', () => {
 
     describe('submit button', () => {        
         it('renders a submit button', () => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             expect(submitButton()).not.toBeNull();
         });
 
         it('disables the submit button when submitting', async () => {
-            render(<CustomerForm original={validCustomer} onSave={() => {}} />);
-            click(submitButton());
-            await act(async () => {
-                expect(submitButton().disabled).toBeTruthy();
-            });
+            renderWithStore(
+                <CustomerForm original={validCustomer} onSave={() => {}} />
+            );
+            dispatchToStore(
+                { type: 'ADD_CUSTOMER_SUBMITTING' }
+            );
+            expect(submitButton().disabled).toBeTruthy();
         });
 
         it('initially does not disable submit button', () => {
-            render(<CustomerForm original={blankCustomer} />);
+            renderWithStore(<CustomerForm original={blankCustomer} />);
             expect(submitButton().disabled).toBeFalsy();
         });
     });

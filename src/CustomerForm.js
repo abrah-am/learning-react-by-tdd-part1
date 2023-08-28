@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { list, match, required, hasError, validateMany, anyErrors } from "./formValidation";
 
 
@@ -10,11 +10,15 @@ const addCustomerRequest = (customer) => ({
 
 export const CustomerForm = ({ original, onSave }) => { 
 
-    const [error, setError] = useState(false);
+    const { 
+        error, 
+        status,
+        validationErrors: serverValidationErrors,
+    } = useSelector(({ customer }) => customer);
 
     const [ customer, setCustomer ] = useState(original); 
 
-    const [submitting, setSubmitting] = useState(false);
+    const submitting = status === 'SUBMITTING';
 
     const [validationErrors, setValidationErrors] = useState({});
 
@@ -39,11 +43,17 @@ export const CustomerForm = ({ original, onSave }) => {
         )
     };
     
-    const renderError = (fieldName) => (
-        <span id={`${fieldName}Error`} role="alert">
-            { hasError(validationErrors, fieldName) ? validationErrors[fieldName] : '' }
-        </span>
-    );
+    const renderError = fieldName => {
+        const allValidationErrors = {
+            ...validationErrors,
+            ...serverValidationErrors
+        };
+        return (
+            <span id={`${fieldName}Error`} role="alert">
+                { hasError(allValidationErrors, fieldName) ? allValidationErrors[fieldName] : '' }
+            </span>
+        )
+    }
 
     const Error = ({ hasError }) => (
         <p role="alert">
@@ -72,7 +82,6 @@ export const CustomerForm = ({ original, onSave }) => {
     }
 
     const doSave = async () => {
-        setSubmitting(true);
         const result = await global.fetch('/customers', { 
             method: "POST",
             credentials: 'same-origin',
@@ -81,16 +90,13 @@ export const CustomerForm = ({ original, onSave }) => {
             },
             body: JSON.stringify(customer),
         });
-        setSubmitting(false)
         if (result.ok) {
-            setError(false);
             const customerWithId = await result.json();
             onSave(customerWithId);
         } else if (result.status === 422) {
             const response = await result.json();
             setValidationErrors(response.errors)
         } else {
-            setError(true);
         }
 
     }
