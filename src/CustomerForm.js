@@ -1,6 +1,12 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { list, match, required, hasError, validateMany, anyErrors } from "./formValidation";
 
+
+const addCustomerRequest = (customer) => ({
+    type: 'ADD_CUSTOMER_REQUEST',
+    customer
+});
 
 export const CustomerForm = ({ original, onSave }) => { 
 
@@ -11,6 +17,8 @@ export const CustomerForm = ({ original, onSave }) => {
     const [submitting, setSubmitting] = useState(false);
 
     const [validationErrors, setValidationErrors] = useState({});
+
+    const dispatch = useDispatch();
 
     const handleChange = ({ target }) => {
         setCustomer((customer) => ({
@@ -92,6 +100,7 @@ export const CustomerForm = ({ original, onSave }) => {
         const validationResult = validateMany(validators, customer);
         if (!anyErrors(validationResult)) {
             await doSave();
+            dispatch(addCustomerRequest(customer))
         }
         else {
             setValidationErrors(validationResult);

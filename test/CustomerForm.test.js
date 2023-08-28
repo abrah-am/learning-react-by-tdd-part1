@@ -2,12 +2,13 @@ import React from "react";
 import { 
     initializeReactContainer, render, element, 
     form, field, click, submit, submitButton, change, 
-    labelFor, clickAndWait, submitAndAwait, withFocus, textOf, elements  } from "./reactTestExtensions";
+    labelFor, clickAndWait, submitAndAwait, withFocus, textOf, elements, renderWithStore, store  } from "./reactTestExtensions";
 import { CustomerForm } from '../src/CustomerForm'
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import { fetchResponseError, fetchResponseOk } from "./builders/fetch";
 import { blankCustomer, validCustomer } from "./builders/customer";
 import { act } from "react-dom/test-utils";
+import { expectRedux } from "expect-redux";
 
 
 describe('CustomerForm', () => {
@@ -150,6 +151,19 @@ describe('CustomerForm', () => {
         await clickAndWait(submitButton());
         expect(global.fetch).toBeCalledWith('/customers', expect.objectContaining(
             { method: "POST" }));
+    });
+
+    it.only('dispatches ADD_CUSTOMER_REQUEST when submitting data', async () => {
+        renderWithStore(
+            <CustomerForm original={validCustomer}  onSave={() => {}} />
+        );
+        await clickAndWait(submitButton());
+        return expectRedux(store)
+            .toDispatchAnAction()
+            .matching({
+                type: 'ADD_CUSTOMER_REQUEST',
+                customer: validCustomer
+            });
     });
 
     it('calls fetch with the right configuration', async () => {
