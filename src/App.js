@@ -38,9 +38,6 @@ export const App = () => {
     
     const transitionToDayView = () => navigate("/");
     
-    const transitionToAddAppointment = (customer) =>
-        navigate(`/addAppointment?customer=${customer.id}`);    
-
     const searchActions = (customer) => (
         <Link
             role="button"
@@ -58,7 +55,6 @@ export const App = () => {
                 element={
                     <CustomerForm 
                         original={blankCustomer} 
-                        onSave={transitionToAddAppointment} 
                     />       
                 }
             />

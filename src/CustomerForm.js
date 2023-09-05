@@ -8,7 +8,7 @@ const addCustomerRequest = (customer) => ({
     customer
 });
 
-export const CustomerForm = ({ original, onSave }) => { 
+export const CustomerForm = ({ original }) => { 
 
     const { 
         error, 
@@ -81,31 +81,10 @@ export const CustomerForm = ({ original, onSave }) => {
         });
     }
 
-    const doSave = async () => {
-        const result = await global.fetch('/customers', { 
-            method: "POST",
-            credentials: 'same-origin',
-            headers: { 
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(customer),
-        });
-        if (result.ok) {
-            const customerWithId = await result.json();
-            onSave(customerWithId);
-        } else if (result.status === 422) {
-            const response = await result.json();
-            setValidationErrors(response.errors)
-        } else {
-        }
-
-    }
-
     const handleSubmit = async (event) => {
         event.preventDefault();
         const validationResult = validateMany(validators, customer);
         if (!anyErrors(validationResult)) {
-            await doSave();
             dispatch(addCustomerRequest(customer))
         }
         else {

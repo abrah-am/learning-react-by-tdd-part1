@@ -1,6 +1,7 @@
 import { expectRedux, storeSpy } from "expect-redux";
 import { configureStore } from "../../src/store";
 import { fetchResponseError, fetchResponseOk } from '../builders/fetch';
+import { appHistory } from "../../src/history";
 
 describe('addCustomer', () => {
     
@@ -100,4 +101,25 @@ describe('addCustomer', () => {
                 validationErrors: errors
             });
     });
+
+    //-- NAVIGATION WITH APPHISTORY
+
+    it('navigates to /addAppointment on success', () => {
+        store.dispatch(addCustomerRequest());
+        expect(
+            appHistory.location.pathname
+        ).toEqual(
+            '/addAppointment'
+        );
+    });
+
+    it('includes the customer id in the query string when navigating to /addAppointment', () => {
+        store.dispatch(addCustomerRequest());
+        expect(
+            appHistory.location.search
+        ).toEqual(
+            '?customer=123'
+        );
+    });
+
 });

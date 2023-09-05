@@ -110,43 +110,19 @@ describe('CustomerForm', () => {
         itSubmitsNewValue('phoneNumber', '0987654321');
     });
 
-    describe('when POST request returns an error', () => {
-
-        beforeEach(() => {
-            global.fetch.mockResolvedValueOnce(fetchResponseError());
-        });
-
-        it('does not notify onSave', async () => {
-            const saveSpy = jest.fn();
-            renderWithStore(<CustomerForm original={validCustomer} onSave={saveSpy.fn} />);
-            await clickAndWait(submitButton());
-            expect(saveSpy).not.toBeCalled();
-        });
-    
-        it('renders error message when error prop is true', async () => {
-            renderWithStore(
-                <CustomerForm original={validCustomer} />
-            );
-            await clickAndWait(submitButton());
-            dispatchToStore(
-                { type: 'ADD_CUSTOMER_FAILED' }
-            );
-            expect(element('[role=alert]')).toContainText('error occurred');
-        });
-
-        it('clears error message when fetch call succeeds', async () => {            
-            renderWithStore(<CustomerForm original={validCustomer} onSave={() => {}}/>);
-            await clickAndWait(submitButton());
-            global.fetch.mockResolvedValueOnce(fetchResponseOk());
-            await clickAndWait(submitButton());
-            expect(element('[role=alert]')).not.toContainText('error occurred');
-        });
-
+    it('renders error message when error prop is true', async () => {
+        renderWithStore(
+            <CustomerForm original={validCustomer} />
+        );
+        await clickAndWait(submitButton());
+        dispatchToStore(
+            { type: 'ADD_CUSTOMER_FAILED' }
+        );
+        expect(element('[role=alert]')).toContainText('error occurred');
     });
 
-
     it('prevents the default action when sumitting the form', async () => {
-        renderWithStore(<CustomerForm original={validCustomer} onSave={() => {}} />);
+        renderWithStore(<CustomerForm original={validCustomer} />);
         const event = await submitAndAwait(form());
         expect(event.defaultPrevented).toBe(true);
     });
@@ -176,14 +152,6 @@ describe('CustomerForm', () => {
         await clickAndWait(submitButton());
         expect(global.fetch).toBeCalledWith(expect.anything(), expect.objectContaining(
             { credentials: "same-origin", headers: { "Content-Type": "application/json" } }));
-    });
-
-    it('notifies onSave when form is submitted', async () => {
-        global.fetch.mockResolvedValue(fetchResponseOk(validCustomer));
-        const saveSpy = jest.fn();
-        renderWithStore(<CustomerForm original={validCustomer} onSave={saveSpy} />);
-        await clickAndWait(submitButton());
-        expect(saveSpy).toBeCalledWith(validCustomer);
     });
 
     it('renders an alert space', async () => {
