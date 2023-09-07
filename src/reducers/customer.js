@@ -5,15 +5,19 @@ const defaultState = {
     error: false
 };
 
-export const reducer = (state = defaultState, action) => {
+export const reducer = (
+    state = defaultState, 
+    action
+) => {
     switch(action.type) {
         case 'ADD_CUSTOMER_SUBMITTING': {
             return { 
                 ...state, 
-                status: 'SUBMITTING' 
+                status: 'SUBMITTING',
+                error: false
             };
         }
-        case 'ADD_CUSTOMER_SUCESSFUL': {
+        case 'ADD_CUSTOMER_SUCCESSFUL': {
             return {
                 ...state,
                 status: 'SUCCESSFUL',

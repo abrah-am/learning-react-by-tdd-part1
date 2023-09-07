@@ -20,12 +20,20 @@ describe('customer reducer', () => {
 
         itMaintainsExistingState(reducer, action);
 
+        it('resets error to false', () => {
+            expect(
+                reducer({ error: true }, action)
+            ).toMatchObject({
+                error: false
+            });
+        })
+
     });
 
     describe('ADD_CUSTOMER_SUCCESSFUL action', () => {
         const customer = { id: 123 };
         const action = {
-            type: 'ADD_CUSTOMER_SUCESSFUL',
+            type: 'ADD_CUSTOMER_SUCCESSFUL',
             customer
         }
 
