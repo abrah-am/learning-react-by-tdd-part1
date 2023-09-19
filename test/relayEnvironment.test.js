@@ -58,4 +58,20 @@ describe('performFetch', () => {
             })
         );
     });
+
+    it('returns the request data', async () => {
+        const result = await performFetch(
+            { text }, variables
+        );
+        expect(result).toEqual(response);
+    });
+
+    it('rejects when the request fails', () => {
+        global.fetch.mockResolvedValue(
+            fetchResponseError(500)
+        );
+        return expect(
+            performFetch({ text }, variables)
+        ).rejects.toEqual(new Error(500));
+    });
 });
