@@ -3,8 +3,18 @@ import {
     fetchResponseError    
 } from './builders/fetch';
 import {
-    performFetch
+    performFetch,
+    buildEnvironment
 } from '../src/relayEnvironment';
+
+import { 
+    Environment,
+    Network,
+    Store,
+    RecordSource
+} from 'relay-runtime';
+
+jest.mock('relay-runtime')
 
 describe('performFetch', () => {
     let response = {
@@ -73,5 +83,41 @@ describe('performFetch', () => {
         return expect(
             performFetch({ text }, variables)
         ).rejects.toEqual(new Error(500));
+    });
+});
+
+describe('buildEnvironment', () => {
+    const environment = { a: 123 };
+    const network = { b: 234 };
+    const store = { c: 345 };
+    const recordSource = { d: 456 };
+
+    beforeEach(() => {
+        Environment.mockImplementation(() => environment);
+        Network.create.mockReturnValue(network);
+        Store.mockImplementation(() => store);
+        RecordSource.mockImplementation(() => recordSource)
+    });
+
+    it('returns environment', () => {
+        expect(buildEnvironment()).toEqual(environment);
+    });
+
+    it('calls Environment with network and store', () => {
+        buildEnvironment();
+        expect(Environment).toBeCalledWith({
+            network,
+            store
+        });
+    });
+
+    it('calls Network.create with performFetch', () => {
+        buildEnvironment();
+        expect(Network.create).toBeCalledWith(performFetch);
+    });
+
+    it('calls store with RecordSource', () => {
+        buildEnvironment();
+        expect(Store).toBeCalledWith(recordSource);
     });
 });
