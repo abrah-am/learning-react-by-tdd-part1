@@ -6,13 +6,9 @@ import {
     RecordSource
 } from 'relay-runtime';
 
-const verifyStatusOk = result => {
-    if(!result.ok) {
-        return Promise.reject(new Error(500));
-    } else {
-        return result;
-    }
-};
+let environment = null;
+
+export const getEnvironment = () => environment || (environment = buildEnvironment());
 
 export const buildEnvironment = () => 
     new Environment({
@@ -37,3 +33,11 @@ export const performFetch = (operation, variables) =>
         .then(
             result => result.json()        
         );
+
+const verifyStatusOk = result => {
+    if(!result.ok) {
+        return Promise.reject(new Error(500));
+    } else {
+        return result;
+    }
+};

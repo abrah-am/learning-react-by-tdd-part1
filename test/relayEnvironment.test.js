@@ -4,7 +4,8 @@ import {
 } from './builders/fetch';
 import {
     performFetch,
-    buildEnvironment
+    buildEnvironment,
+    getEnvironment
 } from '../src/relayEnvironment';
 
 import { 
@@ -119,5 +120,14 @@ describe('buildEnvironment', () => {
     it('calls store with RecordSource', () => {
         buildEnvironment();
         expect(Store).toBeCalledWith(recordSource);
+    });
+});
+
+describe('getEnvironment', () => {
+
+    it('construct the object only once', () => {
+        getEnvironment();
+        getEnvironment();
+        expect(Environment.mock.calls.length).toEqual(1)
     });
 });
