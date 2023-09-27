@@ -6,6 +6,7 @@ import { AppointmentsDayViewLoader } from "../src/AppointmentsDayViewLoader";
 import { AppointmentFormLoader } from "../src/AppointmentFormLoader"
 import { AppointmentFormRoute } from "../src/AppointmentFormRoute";
 import { CustomerSearchRoute } from "../src/CustomerSearchRoute";
+import { CustomerHistoryRoute } from "../src/CustomerHistoryRoute";
 import { CustomerForm } from "../src/CustomerForm";
 import { blankCustomer } from "./builders/customer";
 import { blankAppointment } from "./builders/appointment";
@@ -22,6 +23,12 @@ jest.mock('../src/AppointmentFormRoute', () => ({
 jest.mock('../src/CustomerSearchRoute', () => ({
     CustomerSearchRoute: jest.fn(() => (
       <div id="CustomerSearchRoute" />
+    )),
+}));
+
+jest.mock('../src/CustomerHistoryRoute', () => ({
+    CustomerHistoryRoute: jest.fn(() => (
+        <div id='CustomerHistoryRoute' />
     )),
 }));
 
@@ -86,6 +93,13 @@ describe('App', () => {
         expect(CustomerSearchRoute).toBeRendered();
     });
 
+    it('renders CustomerHistory at /viewHistory', () => {
+        renderWithRouter(<App />, {
+            location: '/viewHistory?customer=123'
+        });
+        expect(CustomerHistoryRoute).toBeRendered();
+    });
+
     it('renders a link to the /addCustomer route', async () => {
         renderWithRouter(<App />);
         expect(linkFor('/addCustomer')).toBeDefined();
@@ -95,10 +109,39 @@ describe('App', () => {
         renderWithRouter(<App />);
         expect(linkFor('/addCustomer')).toContainText("Add customer and appointment");
     });
-
+    
     it('displays the CustomerSearch when link is clicked', async () => {
         renderWithRouter(<App />);
         click(linkFor('/searchCustomers'));
         expect(CustomerSearchRoute).toBeRendered();
     });
+
+
+
+    describe('search customers', () => {
+        const customer = { id: "123" };
+
+        const searchFor = (customer) => propsOf(
+            CustomerSearchRoute
+        ).renderCustomerActions(customer);
+
+        it('renders a link to the /addAppointment route for each CustomerSearch row', async() => {
+            renderWithRouter(<App />);
+            click(linkFor('/searchCustomers'));
+            renderWithRouter(searchFor(customer));
+            expect(
+                linkFor('/addAppointment?customer=123')
+            ).toBeDefined();
+        });
+
+        it('renders a link to the /viewHistory route for each CustomerSearch row', () => {
+            renderWithRouter(<App />);
+            click(linkFor('/searchCustomers'));
+            renderWithRouter(searchFor(customer));
+            expect(
+                linkFor('/viewHistory?customer=123')
+            ).toBeDefined();
+        });
+    });
+
 });
